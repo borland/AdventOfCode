@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug SwiftConsoleApp (SwiftConsoleApp)",
+            "program": "${workspaceFolder:aoc22}\\SwiftConsoleApp\\.build/debug/SwiftConsoleApp",
+            "args": [],
+            "cwd": "${workspaceFolder:aoc22}/SwiftConsoleApp",
+            "preLaunchTask": "swift: Build Debug SwiftConsoleApp (SwiftConsoleApp)"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Release SwiftConsoleApp (SwiftConsoleApp)",
+            "program": "${workspaceFolder:aoc22}\\SwiftConsoleApp\\.build/release/SwiftConsoleApp",
+            "args": [],
+            "cwd": "${workspaceFolder:aoc22}/SwiftConsoleApp",
+            "preLaunchTask": "swift: Build Release SwiftConsoleApp (SwiftConsoleApp)"
+        }
+    ]
+}

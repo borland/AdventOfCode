@@ -3,8 +3,6 @@
 public static class Puzzle1CalorieCounting
 {
     record struct ElfInfo(int ElfNumber, int Calories);
-
-    public static void Run(string inputFile) => PartTwo(inputFile);
     
     public static void Part1(string inputFile)
     {
@@ -52,7 +50,7 @@ public static class Puzzle1CalorieCounting
         Console.WriteLine($"The elf carrying the most calories is {maxElf.ElfNumber} with {maxElf.Calories} calories");
     }
     
-    public static void PartTwo(string inputFile)
+    public static void Part2(string inputFile)
     {
         // keep the state machine to enumerate the file, but collect results into a list instead of just keeping maxElf
         var elfNum = 1;
