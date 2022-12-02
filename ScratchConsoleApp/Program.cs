@@ -2,4 +2,4 @@
 
 using ScratchConsoleApp;
 
-Puzzle1CalorieCounting.Part2(@"C:\Dev\aoc22\puzzle1-input.txt");
+Puzzle2RockPaperScissorsP2.Run(@"C:\Dev\aoc22\puzzle2-input.txt");
