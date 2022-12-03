@@ -38,11 +38,7 @@ struct RoundChoices {
 struct Puzzle2RockPaperScissorsP1 {
 
     static func parseFile(fileName: String) throws -> [RoundChoices] {
-        let contents = try String(contentsOfFile: fileName, encoding: .utf8)
-        return try contents
-            .split(separator: "\n", omittingEmptySubsequences: false)
-            .map { $0.trimmed() }
-            .filter { $0 != "" }
+        return try linesInFile(fileName)
             .map { line in
                 let tokens = line.split(separator: " ", maxSplits: 2)
                 guard tokens.count == 2 else { throw ParseError(message: "Unparseable line \(line)") }
@@ -93,11 +89,7 @@ struct Puzzle2RockPaperScissorsP2 {
     }
 
     static func parseFile(fileName: String) throws -> [GuideEntry] {
-        let contents = try String(contentsOfFile: fileName, encoding: .utf8)
-        return try contents
-            .split(separator: "\n")
-            .map { $0.trimmed() }
-            .filter { $0 != "" }
+        return try linesInFile(fileName)
             .map { line in
                 let tokens = line.split(separator: " ", maxSplits: 2)
                 guard tokens.count == 2 else { throw ParseError(message: "Unparseable line \(line)") }
