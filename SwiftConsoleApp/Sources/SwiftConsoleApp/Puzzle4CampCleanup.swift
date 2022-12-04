@@ -23,7 +23,7 @@ struct Puzzle4CampCleanupP1 {
     
     public static func run(fileName: String) throws {
         let grandTotal = try parseFile(fileName: fileName)
-            .map { assignments in
+            .sum { assignments in
                 let a = assignments.first, b = assignments.second
                 // if one of the ranges fully contains the other, return 1 to 'count' it; else 0
                 
@@ -34,7 +34,6 @@ struct Puzzle4CampCleanupP1 {
                 }
                 return 0
             }
-            .reduce(0, +)
         
         print("Grand Total=\(grandTotal)")
     }
@@ -44,7 +43,7 @@ struct Puzzle4CampCleanupP2 {
     
     public static func run(fileName: String) throws {
         let grandTotal = try parseFile(fileName: fileName)
-            .map { assignments in
+            .sum { assignments in
                 let a = assignments.first, b = assignments.second
                 
                 if a.overlaps(b) {
@@ -53,7 +52,6 @@ struct Puzzle4CampCleanupP2 {
                 }
                 return 0
             }
-            .reduce(0, +)
         
         print("Grand Total=\(grandTotal)")
     }

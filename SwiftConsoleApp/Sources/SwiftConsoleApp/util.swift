@@ -6,7 +6,7 @@ struct ParseError : LocalizedError {
     var errorDescription: String? { message }
 }
 
-extension StringProtocol where Index == String.Index {
+extension StringProtocol {
     func trimmed() -> String {
         self.trimmingCharacters(in: .whitespaces)
     }
@@ -24,6 +24,16 @@ func linesInFile(_ fileName: String, includeEmptyLines: Bool = false) throws -> 
 }
 
 extension Sequence {
+    func sum() -> Element where Element : AdditiveArithmetic {
+        return self.reduce(.zero, +)
+    }
+    
+    func sum<T>(_ of: (Element) -> T) -> T where T : AdditiveArithmetic {
+        return self.reduce(.zero) { memo, element in
+            memo + of(element)
+        }
+    }
+    
     func distinct() -> [Element] where Element : Hashable {
         var items = Set<Element>()
         var result = [Element]()

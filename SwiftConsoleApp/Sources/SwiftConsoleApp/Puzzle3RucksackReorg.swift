@@ -42,7 +42,7 @@ struct Puzzle3RucksackReorgP1 {
     
     public static func run(fileName: String) throws {
         let grandTotal = try parseFile(fileName: fileName)
-            .map { entry in
+            .sum { entry in
                 var common = Set<Character>()
                 for c in entry.compartment1 {
                     if entry.compartment2.firstIndex(of: c) != nil {
@@ -54,7 +54,6 @@ struct Puzzle3RucksackReorgP1 {
                 //                print("Ruckack: comp1=\(entry.compartment1) comp2=\(entry.compartment2) commonItems=\(common) priorities=\(priorities)")
                 return priorities
             }
-            .reduce(0, +)
         
         print("Grand Total=\(grandTotal)")
     }
@@ -69,7 +68,7 @@ struct Puzzle3RucksackReorgP2 {
     
     public static func run(fileName: String) throws {
         let grandTotal = try parseFile(fileName: fileName)
-            .map { entrySet in
+            .sum { entrySet in
                 var common = [Character:Int]()
                 for rucksack in entrySet {
                     for c in rucksack.contents.distinct() {
@@ -84,7 +83,6 @@ struct Puzzle3RucksackReorgP2 {
                     return 0 // no common item
                 }
             }
-            .reduce(0, +)
         
         print("Grand Total=\(grandTotal)")
     }
