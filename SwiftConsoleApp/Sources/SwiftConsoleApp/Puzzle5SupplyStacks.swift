@@ -14,22 +14,22 @@ class Stack {
         crates.insert(crate, at: 0)
     }
     
-    // put a single crate on top of the current stack
+    // put a single crate on top of the stack
     func push(_ crate: Character) {
         crates.append(crate)
     }
     
-    // remove and return a single crate from the top of the current stack
+    // remove and return a single crate from the top of the stack
     func pop() -> Character {
         crates.removeLast()
     }
     
-    // put multiple crates on top of the current stack (preserves order)
+    // put multiple crates on top of the stack (preserves order)
     func push(_ crates: [Character]) {
         self.crates.append(contentsOf: crates)
     }
     
-    // put multiple crates on top of the current stack (preserves order)
+    // remove multiple crates from the top of the stack (preserves order)
     func pop(numberOfCrates: Int) -> [Character] {
         if numberOfCrates > crates.count {
             fatalError("can't pop \(numberOfCrates) crates; our stack only has \(crates.count).")
@@ -70,6 +70,7 @@ fileprivate func parseFile(fileName: String) throws -> ([Stack],[Instruction]) {
     
     func pickupCrateDef(_ l: String) {
         var stackIdx = 0
+        // I am so very glad I wrote inGroupsOf for the earlier exercise
         for str in l.inGroupsOf(4).map({ String($0).trimmed() }) {
             switch str.count {
             
