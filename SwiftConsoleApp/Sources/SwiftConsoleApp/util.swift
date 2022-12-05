@@ -12,15 +12,18 @@ extension StringProtocol {
     }
 }
 
-func linesInFile(_ fileName: String, includeEmptyLines: Bool = false) throws -> [String] {
+func linesInFile(_ fileName: String, includeEmpty: Bool = false, trim: Bool = true) throws -> [String] {
     let contents = try String(contentsOfFile: fileName, encoding: .utf8)
-    let includingEmptyLines = contents
-        .split(separator: "\n", omittingEmptySubsequences: false)
-        .map { line in line.trimmed() }
+    let lines = contents
+        .split(separator: "\n", omittingEmptySubsequences: !includeEmpty)
     
-    return includeEmptyLines ?
-        includingEmptyLines :
-        includingEmptyLines.filter { line in line != "" }
+    let trimmedLines:[String] = trim ?
+        lines.map { line in line.trimmed() } :
+        lines.map { line in String(line) }
+    
+    return includeEmpty ?
+        trimmedLines :
+        trimmedLines.filter { line in line != "" }
 }
 
 extension Sequence {
