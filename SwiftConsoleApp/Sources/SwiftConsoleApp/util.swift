@@ -37,6 +37,12 @@ extension Sequence {
         }
     }
     
+    func ofType<T>() -> [T] {
+        return self.compactMap {
+            $0 as? T
+        }
+    }
+    
     func distinct() -> [Element] where Element : Hashable {
         var items = Set<Element>()
         var result = [Element]()
