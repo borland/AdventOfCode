@@ -1,34 +1,32 @@
 import Foundation
 
-// virtual file system
 struct VirtualFileSystem
 {
     class Entry {
         var parent: Dir? // everyone has a parent except the root
+        var name: String // everyone has a name
         
-        init(parent: Dir?) {
+        init(parent: Dir?, name: String) {
             self.parent = parent
+            self.name = name
         }
     }
     
     class Dir : Entry {
-        var name: String
         var entries: [Entry]
         
         init(parent: Dir?, name: String, entries: [Entry] = []) {
-            self.name = name
             self.entries = entries
-            super.init(parent: parent)
+            super.init(parent: parent, name: name)
         }
     }
+
     class File : Entry {
-        var name: String
         var size: Int
         
         init(parent: Dir?, name: String, size: Int) {
-            self.name = name
             self.size = size
-            super.init(parent: parent)
+            super.init(parent: parent, name: name)
         }
     }
 }
@@ -38,16 +36,15 @@ extension VirtualFileSystem.Dir {
         var output = ""
         
         func pr(indent: Int, entry: VirtualFileSystem.Entry) {
+            let indentStr = String(repeating: " ", count: indent)
             switch entry {
             case let d as VirtualFileSystem.Dir:
-                output += String(repeating: " ", count: indent)
-                output += "- \(d.name) (dir)\n"
+                output += "\(indentStr)- \(d.name) (dir)\n"
                 for child in d.entries {
                     pr(indent: indent + 2, entry: child)
                 }
             case let f as VirtualFileSystem.File:
-                output += String(repeating: " ", count: indent)
-                output += "- \(f.name) (file, size=\(f.size))\n"
+                output += "\(indentStr)- \(f.name) (file, size=\(f.size))\n"
             default:
                 fatalError("Unhandled entry \(entry)")
             }
@@ -69,9 +66,9 @@ fileprivate func parseTerminalLog(lines: [String]) -> VirtualFileSystem.Dir {
     // interpreter!
     var state: TermState = .interpret
     
-    func interpretLine(_ l: String) {
-        if l.starts(with: "$ cd ") {
-            let changeDirTarget = l[l.index(l.startIndex, offsetBy: 5)...]
+    func interpretLine(_ components: [Substring]) {
+        if components.count == 3 && components[0] == "$" && components[1] == "cd" {
+            let changeDirTarget = components[2]
             if changeDirTarget == "/" {
                 workingDir = root
             } else if changeDirTarget == "..", let p = workingDir.parent { // go up if possible
@@ -88,14 +85,15 @@ fileprivate func parseTerminalLog(lines: [String]) -> VirtualFileSystem.Dir {
                     fatalError("can't cd into '\(changeDirTarget)', it was not found in \(workingDir.name)")
                 }
             }
-        } else if l == "$ ls" {
+        } else if components.count == 2 && components[0] == "$" && components[1] == "ls" {
             state = .parseLsOutput
+        } else {
+            fatalError("can't interpret \(components)")
         }
     }
     
-    func pickupDirOutput(_ l: String) {
-        let components = l.split(separator: " ", maxSplits: 2)
-        guard components.count == 2 else { fatalError("can't pickup dir output \(l)") }
+    func pickupDirOutput(_ components: [Substring]) {
+        guard components.count == 2 else { fatalError("can't pickup dir output \(components)") }
         
         if components[0] == "dir" {
             // we've seen that a dir exists, add it to our working directory
@@ -103,22 +101,24 @@ fileprivate func parseTerminalLog(lines: [String]) -> VirtualFileSystem.Dir {
         } else if let sz = Int(components[0]) {
             workingDir.entries.append(VirtualFileSystem.File(parent: workingDir, name: String(components[1]), size: sz))
         } else {
-            fatalError("can't pickup dir output \(l)")
+            fatalError("can't pickup dir output \(components)")
         }
     }
     
     for line in lines {
+        let components = line.split(separator: " ")
+        guard components.count >= 2 else { fatalError("line \(line) didn't have at least two components") }
         switch state
         {
         case .interpret:
-            interpretLine(line)
+            interpretLine(components)
             
         case .parseLsOutput:
-            if line.starts(with: "$") {
+            if components[0] == "$" {
                 state = .interpret
-                interpretLine(line)
+                interpretLine(components)
             } else {
-                pickupDirOutput(line)
+                pickupDirOutput(components)
             }
         }
     }
@@ -166,7 +166,7 @@ struct Puzzle7NoSpaceLeftOnDeviceP2 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         let rootDir = parseTerminalLog(lines: lines)
-        // print(rootDir.printRecursive())
+        print(rootDir.printRecursive())
 
         // every time we calculate the size of a dir, stash it here
         // so later we can find the smallest dir over our threshold
