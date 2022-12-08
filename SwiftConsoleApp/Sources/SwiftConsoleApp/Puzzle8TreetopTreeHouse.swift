@@ -1,12 +1,6 @@
-//
-//  File.swift
-//  
-//
-//  Created by Orion Edwards on 8/12/22.
-//
-
 import Foundation
 
+// blargh. Swift doesn't have 2D arrays so we emulate one with a flat array and maths
 class TreeGrid {
     var rawBuffer: [UInt8] // numbers between 0 and 9
     let rows: Int
@@ -42,12 +36,27 @@ class TreeGrid {
     }
 }
 
+
+func parse(lines: [String]) -> TreeGrid {
+    let grid = TreeGrid(rows: lines.count, cols: lines.first?.count ?? 0)
+    
+    var i = 0
+    for line in lines {
+        grid.setRow(number: i, values: line.map({ ch in UInt8(String(ch)) ?? 0 }))
+        i += 1
+    }
+    
+    return grid
+}
+
 // converts a TreeGrid where the numbers are heights into a same-sized array where the row,col entry is 1 if a tree is visible, 0 if not
 func markVisibleTrees(grid: TreeGrid) -> TreeGrid {
     // initial grid is all zeroes so no trees are visible
     let visGrid = TreeGrid(rows: grid.rows, cols: grid.cols)
     
     // now let's run the algorithm.
+    // there's almost certainly a fancy computer science way to do this with less code and big-O complexity
+    // but I'm tired and brute force works fine for this
     for row in 0..<grid.rows {
         // left edge, drill towards the right
         // tree on the edge is always visible
@@ -107,17 +116,6 @@ func markVisibleTrees(grid: TreeGrid) -> TreeGrid {
     return visGrid
 }
 
-func parse(lines: [String]) -> TreeGrid {
-    let grid = TreeGrid(rows: lines.count, cols: lines.first?.count ?? 0)
-    
-    var i = 0
-    for line in lines {
-        grid.setRow(number: i, values: line.map({ ch in UInt8(String(ch)) ?? 0 }))
-        i += 1
-    }
-    
-    return grid
-}
 
 struct Puzzle8TreetopTreeHouseP1 {
     
@@ -127,7 +125,7 @@ struct Puzzle8TreetopTreeHouseP1 {
         print(grid.printRecursive())
         
         let visGrid = markVisibleTrees(grid: grid)
-        print(visGrid.printRecursive())
+        print(visGrid.printRecursive(vis: true))
         
         let numTreesVisible = visGrid.rawBuffer.sum{ Int($0 )} // uint8 can only count to 255
         print("numTreesVisible = \(numTreesVisible)")
@@ -135,11 +133,16 @@ struct Puzzle8TreetopTreeHouseP1 {
 }
 
 extension TreeGrid {
-    func printRecursive() -> String {
+    func printRecursive(vis: Bool = false) -> String {
         var buf = ""
         for row in 0..<self.rows {
             for col in 0..<self.cols {
-                buf += String(self[row, col])
+                let val = self[row, col]
+                // if we're in "vis" mode, print a _ for a tree we can't see and a T for one we can
+                // in normal mode we just print the numbers
+                buf += vis ?
+                    (val == 0 ? "_" : "T") :
+                    String(val)
             }
             buf += "\n"
         }
