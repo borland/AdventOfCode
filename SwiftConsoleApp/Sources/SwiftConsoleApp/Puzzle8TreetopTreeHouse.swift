@@ -1,18 +1,41 @@
 import Foundation
 
 // blargh. Swift doesn't have 2D arrays so we emulate one with a flat array and maths
-class TreeGrid {
-    var rawBuffer: [UInt8] // numbers between 0 and 9
+class TreeGrid : Sequence {
+    func makeIterator() -> TreeGridIterator {
+        TreeGridIterator(parent: self)
+    }
+    
+    struct TreeGridIterator : IteratorProtocol {
+        typealias Element = (row: Int, col: Int, score: Int)
+        var row: Int = 0
+        var col: Int = 0
+        let parent: TreeGrid
+        
+        mutating func next() -> Self.Element? {
+            row += 1
+            if row == parent.rows {
+                row = 0
+                col += 1
+            }
+            if col == parent.cols {
+                return nil // end of sequence
+            }
+            return (row, col, parent[row, col])
+        }
+    }
+    
+    var rawBuffer: [Int] // numbers between 0 and 9
     let rows: Int
     let cols: Int
     
     init(rows: Int, cols: Int) {
         self.rows = rows
         self.cols = cols
-        self.rawBuffer = Array(repeating: UInt8(0), count: rows * cols)
+        self.rawBuffer = Array(repeating: Int(0), count: rows * cols)
     }
     
-    func setRow(number: Int, values: [UInt8]) {
+    func setRow(number: Int, values: [Int]) {
         if values.count != cols { fatalError("can't set row; doesn't have \(cols) items in it") }
         let startIdx = number * cols
         let endIdx = startIdx + cols
@@ -20,7 +43,7 @@ class TreeGrid {
         rawBuffer.replaceSubrange(startIdx..<endIdx, with: values)
     }
     
-    subscript(row: Int, col: Int) -> UInt8 {
+    subscript(row: Int, col: Int) -> Int {
         get {
             if row < 0 || col < 0 { fatalError("row or col negative") }
             if row >= rows || col >= cols { fatalError("row or col too large") }
@@ -42,7 +65,7 @@ func parse(lines: [String]) -> TreeGrid {
     
     var i = 0
     for line in lines {
-        grid.setRow(number: i, values: line.map({ ch in UInt8(String(ch)) ?? 0 }))
+        grid.setRow(number: i, values: line.map({ ch in Int(String(ch)) ?? 0 }))
         i += 1
     }
     
@@ -116,6 +139,78 @@ func markVisibleTrees(grid: TreeGrid) -> TreeGrid {
     return visGrid
 }
 
+private func scenicScore(trees: TreeGrid, row: Int, col: Int) -> Int {
+    let leftScore: Int, rightScore: Int, upScore: Int, downScore: Int
+    
+    // drill left
+    let maxHeight = trees[row, col]
+    
+    var treesSeen = 0
+    var r = row
+    while r > 0 {
+        r -= 1
+        treesSeen += 1
+        if trees[r,col] >= maxHeight {
+            break
+        }
+    }
+    leftScore = treesSeen
+    
+    // drill right
+    treesSeen = 0
+    r = row
+    while r < trees.rows-1 {
+        r += 1
+        treesSeen += 1
+        if trees[r,col] >= maxHeight {
+            break
+        }
+    }
+    rightScore = treesSeen
+    
+    // drill up
+    treesSeen = 0
+    var c = col
+    while c > 0 {
+        c -= 1
+        treesSeen += 1
+        if trees[row,c] >= maxHeight {
+            break
+        }
+    }
+    upScore = treesSeen
+    
+    // drill down
+    treesSeen = 0
+    c = col
+    while c < trees.cols-1 {
+        c += 1
+        treesSeen += 1
+        if trees[row,c] >= maxHeight {
+            break
+        }
+    }
+    downScore = treesSeen
+    
+    let totalScore = leftScore * rightScore * upScore * downScore
+    
+//    print("for \(row),\(col): l=\(leftScore) * r=\(rightScore) * u=\(upScore) * d=\(downScore) ::==> \(totalScore)")
+    return totalScore
+}
+
+// converts a TreeGrid where the numbers are heights into a same-sized array where the row,col entry is the scenic score of a tree
+func computeScenicScores(grid: TreeGrid) -> TreeGrid {
+    // initial grid is all zeroes so no trees are visible
+    let scoreGrid = TreeGrid(rows: grid.rows, cols: grid.cols)
+    
+    for row in 0..<grid.rows {
+        for col in 0..<grid.cols {
+            scoreGrid[row, col] = scenicScore(trees: grid, row: row, col: col)
+        }
+    }
+    return scoreGrid
+}
+
 
 struct Puzzle8TreetopTreeHouseP1 {
     
@@ -129,6 +224,23 @@ struct Puzzle8TreetopTreeHouseP1 {
         
         let numTreesVisible = visGrid.rawBuffer.sum{ Int($0 )} // uint8 can only count to 255
         print("numTreesVisible = \(numTreesVisible)")
+    }
+}
+
+struct Puzzle8TreetopTreeHouseP2 {
+    
+    public static func run(fileName: String) throws {
+        let lines = try linesInFile(fileName)
+        let grid = parse(lines: lines)
+        print(grid.printRecursive())
+        
+        let scoresGrid = computeScenicScores(grid: grid)
+        print(scoresGrid.printRecursive())
+        
+        let bestTree = scoresGrid.max { l, r in
+            l.score < r.score
+        }!
+        print("best tree has score of \(bestTree.score) at \(bestTree.row),\(bestTree.col)")
     }
 }
 
