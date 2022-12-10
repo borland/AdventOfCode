@@ -1,6 +1,6 @@
 import Foundation
 
-class Stack {
+private class Stack {
     let number: Int
     var crates: [Character]
     
@@ -45,7 +45,7 @@ class Stack {
     }
 }
 
-struct Instruction : CustomStringConvertible {
+private struct Instruction : CustomStringConvertible {
     let numCratesToMove: Int
     let sourceStackNumber: Int
     let targetStackNumber: Int
@@ -135,7 +135,7 @@ fileprivate func parseFile(fileName: String) throws -> ([Stack],[Instruction]) {
 }
 
 // so I can make sense of this thing
-func printStacks(_ stacks: [Stack]) {
+private func printStacks(_ stacks: [Stack]) {
     func crateString(_ crates: [Character]) -> String {
         return crates.map { c in "[\(c)]" }.joined(separator: " ")
     }
