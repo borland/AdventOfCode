@@ -99,8 +99,8 @@ struct Puzzle10CathodeRayTubeP2 {
             let xPos = (cycle-1) % crt.cols
             let yPos = (cycle-1) / crt.cols
 
-            let spriteMidPos = xRegister
-            if (spriteMidPos-1...spriteMidPos+1).contains(xPos) {
+            // if the value of xRegister matches our xPos (plus or minus 1), then draw the pixel
+            if (xRegister-1...xRegister+1).contains(xPos) {
                 crt[xPos, yPos] = true
             }
         }
