@@ -1,7 +1,7 @@
 import Foundation
 
 // blargh. Swift doesn't have 2D arrays so we emulate one with a flat array and maths
-class TreeGrid : Sequence {
+private class TreeGrid : Sequence {
     func makeIterator() -> TreeGridIterator {
         TreeGridIterator(parent: self)
     }
@@ -60,7 +60,7 @@ class TreeGrid : Sequence {
 }
 
 
-func parse(lines: [String]) -> TreeGrid {
+private func parse(lines: [String]) -> TreeGrid {
     let grid = TreeGrid(rows: lines.count, cols: lines.first?.count ?? 0)
     
     var i = 0
@@ -73,7 +73,7 @@ func parse(lines: [String]) -> TreeGrid {
 }
 
 // converts a TreeGrid where the numbers are heights into a same-sized array where the row,col entry is 1 if a tree is visible, 0 if not
-func markVisibleTrees(grid: TreeGrid) -> TreeGrid {
+private func markVisibleTrees(grid: TreeGrid) -> TreeGrid {
     // initial grid is all zeroes so no trees are visible
     let visGrid = TreeGrid(rows: grid.rows, cols: grid.cols)
     
@@ -199,7 +199,7 @@ private func scenicScore(trees: TreeGrid, row: Int, col: Int) -> Int {
 }
 
 // converts a TreeGrid where the numbers are heights into a same-sized array where the row,col entry is the scenic score of a tree
-func computeScenicScores(grid: TreeGrid) -> TreeGrid {
+private func computeScenicScores(grid: TreeGrid) -> TreeGrid {
     // initial grid is all zeroes so no trees are visible
     let scoreGrid = TreeGrid(rows: grid.rows, cols: grid.cols)
     
