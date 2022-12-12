@@ -2,7 +2,7 @@ import Foundation
 
 // if head and tail are in the same space we just show head so no need to track both specifically
 private enum RopePosition {
-    case none, head, tail
+    case none, head, body(Int), tail
 }
 
 private struct Point {
@@ -40,11 +40,14 @@ private struct Grid {
     func render() -> String {
         var output = ""
         for i in rawBuffer.indices {
-            if rawBuffer[i] == .head { // head covers tail so draw "H" if they're in the same spot
+            switch rawBuffer[i] {
+            case .head:
                 output += "H"
-            } else if rawBuffer[i] == .tail {
+            case .body(let n):
+                output += "\(n)"
+            case .tail:
                 output += "T"
-            } else {
+            default:
                 output += "."
             }
             
@@ -56,34 +59,21 @@ private struct Grid {
     }
 }
 
-private enum Instruction {
-    case left(Int), right(Int), up(Int), down(Int)
-    
-    func microInstructions() -> [MicroInstruction] {
-        switch self {
-        case .left(let n): return Array(repeating: .left, count: n)
-        case .right(let n): return Array(repeating: .right, count: n)
-        case .up(let n): return Array(repeating: .up, count: n)
-        case .down(let n): return Array(repeating: .down, count: n)
-        }
-    }
-}
-
 // an instruction to move but only ever by one position at a time
-private enum MicroInstruction {
+private enum Instruction {
     case left, right, up, down
 }
 
-private func parseInstruction(text: String) -> Instruction {
+private func parseInstruction(text: String) -> [Instruction] {
     let components = text.split(separator: " ")
     guard components.count == 2, let num = Int(components[1]) else {
         fatalError("can't deal with line \(text)")
     }
     switch components[0] {
-    case "L": return .left(num)
-    case "R": return .right(num)
-    case "U": return .up(num)
-    case "D": return .down(num)
+    case "L": return Array(repeating: .left, count: num)
+    case "R": return Array(repeating: .right, count: num)
+    case "U": return Array(repeating: .up, count: num)
+    case "D": return Array(repeating: .down, count: num)
     default: fatalError("can't deal with line \(text)")
     }
 }
@@ -105,7 +95,7 @@ struct Puzzle9RopeBridgeP1 {
         var tailTrailGrid = Grid(rows: grid.rows, cols: grid.cols)
         tailTrailGrid[startPosition] = .tail
         
-        for instruction in lines.flatMap({ parseInstruction(text: $0).microInstructions() }) {
+        for instruction in lines.flatMap({ parseInstruction(text: $0) }) {
             switch instruction {
             case .left:
                 headPos = Point(x: headPos.x-1, y: headPos.y)
@@ -162,5 +152,69 @@ struct Puzzle9RopeBridgeP1 {
 struct Puzzle9RopeBridgeP2 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
+        
+        var grid = Grid(rows: 10, cols: 10)
+        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
+        
+        // head is the first element in this array, tail is the last
+        var rope = Array(repeating: startPosition, count: 10)
+        
+        grid[startPosition] = .head
+        print(grid.render())
+
+        // at the end of each frame, record where the tail was at the end of the frame and keep the record
+        var tailTrailGrid = Grid(rows: grid.rows, cols: grid.cols)
+        tailTrailGrid[startPosition] = .tail
+        
+        for instruction in lines.flatMap({ parseInstruction(text: $0) }) {
+            
+            var knotPos = rope[0]
+            
+            switch instruction {
+            case .left:
+                knotPos = Point(x: knotPos.x-1, y: knotPos.y)
+            case .right:
+                knotPos = Point(x: knotPos.x+1, y: knotPos.y)
+            case .up:
+                knotPos = Point(x: knotPos.x, y: knotPos.y-1)
+            case .down:
+                knotPos = Point(x: knotPos.x, y: knotPos.y+1)
+            }
+            rope[0] = knotPos
+
+            var followingPos = rope[1]
+            // now work out where the next knot is supposed to go
+            switch knotPos.x - followingPos.x {
+            case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
+            case 2:
+                // head is 2 points to the right of tail, tail needs to move right and into the same column as head
+                followingPos = Point(x: followingPos.x + 1, y: knotPos.y)
+            case -2:
+                // head is 2 points to the left of tail, tail needs to move left and into the same column as head
+                followingPos = Point(x: followingPos.x - 1, y: knotPos.y)
+            default: fatalError("somehow tail became detached from head")
+            }
+            
+            switch knotPos.y - followingPos.y {
+            case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
+            case 2:
+                // head is 2 points below of tail, tail needs to move down and into the same row as head
+                followingPos = Point(x: knotPos.x, y: followingPos.y + 1)
+            case -2:
+                // head is 2 points above of tail, tail needs to move up and into the same row as head
+                followingPos = Point(x: knotPos.x, y: followingPos.y - 1)
+            default: fatalError("somehow tail became detached from head")
+            }
+            rope[1] = followingPos
+            
+            // tailTrailGrid[followingPos] = .tail
+            
+            var frame = Grid(rows: grid.rows, cols: grid.cols)
+            for i in rope.indices.reversed() {
+                frame[rope[i]] = i
+            }
+            
+            print(frame.render())
+        }
     }
 }
