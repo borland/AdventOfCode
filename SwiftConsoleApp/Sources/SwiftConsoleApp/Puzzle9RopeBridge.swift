@@ -5,7 +5,7 @@ private enum RopePosition {
     case none, head, body(Int), tail
 }
 
-private struct Point {
+private struct Point : Equatable {
     let x: Int
     let y: Int
 }
@@ -83,7 +83,8 @@ struct Puzzle9RopeBridgeP1 {
         let lines = try linesInFile(fileName)
         
         var grid = Grid(rows: 10, cols: 10)
-        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
+//        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
+        let startPosition = Point(x: 0, y: grid.rows-1)
         
         var headPos = startPosition
         var tailPos = startPosition
@@ -106,35 +107,14 @@ struct Puzzle9RopeBridgeP1 {
             case .down:
                 headPos = Point(x: headPos.x, y: headPos.y+1)
             }
-            // now work out where the tail is supposed to go
-            switch headPos.x - tailPos.x {
-            case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
-            case 2:
-                // head is 2 points to the right of tail, tail needs to move right and into the same column as head
-                tailPos = Point(x: tailPos.x + 1, y: headPos.y)
-            case -2:
-                // head is 2 points to the left of tail, tail needs to move left and into the same column as head
-                tailPos = Point(x: tailPos.x - 1, y: headPos.y)
-            default: fatalError("somehow tail became detached from head")
-            }
-            
-            switch headPos.y - tailPos.y {
-            case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
-            case 2:
-                // head is 2 points below of tail, tail needs to move down and into the same row as head
-                tailPos = Point(x: headPos.x, y: tailPos.y + 1)
-            case -2:
-                // head is 2 points above of tail, tail needs to move up and into the same row as head
-                tailPos = Point(x: headPos.x, y: tailPos.y - 1)
-            default: fatalError("somehow tail became detached from head")
-            }
-            
+            tailPos = pull(head: headPos, tail: tailPos)
+                        
             tailTrailGrid[tailPos] = .tail
 
-//            var grid = Grid()
-//            grid[tailPos] = .tail
-//            grid[headPos] = .head
-//            print(grid.render())
+            var frame = Grid(rows: grid.rows, cols: grid.cols)
+            frame[tailPos] = .tail
+            frame[headPos] = .head
+            print(frame.render())
         }
         print(tailTrailGrid.render())
         
@@ -149,15 +129,54 @@ struct Puzzle9RopeBridgeP1 {
     }
 }
 
+// tail is the knot we are moving
+// head is the knot that pulled us
+private func pull(head: Point, tail: Point) -> Point {
+    var result = tail
+    switch head.x - tail.x {
+    case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
+    case 2:
+        // head is 2 points to the right of tail, tail needs to move right and into the same column as head
+        result = Point(x: tail.x + 1, y: head.y)
+    case -2:
+        // head is 2 points to the left of tail, tail needs to move left and into the same column as head
+        result = Point(x: tail.x - 1, y: head.y)
+    default: fatalError("somehow tail became detached from head")
+    }
+    // our pull function allows both x and y to move at the same time. Block this
+//    if result != tail { return result }
+    
+    switch head.y - tail.y {
+    case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
+    case 2:
+        // head is 2 points below of tail, tail needs to move down and into the same row as head
+        result = Point(x: head.x, y: tail.y + 1)
+    case -2:
+        // head is 2 points above of tail, tail needs to move up and into the same row as head
+        result = Point(x: head.x, y: tail.y - 1)
+    default: fatalError("somehow tail became detached from head")
+    }
+    return result
+}
+
 struct Puzzle9RopeBridgeP2 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         
-        var grid = Grid(rows: 10, cols: 10)
-        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
+        var grid = Grid(rows: 7, cols: 7)
+//        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
+        let startPosition = Point(x: 0, y: 6)
         
         // head is the first element in this array, tail is the last
         var rope = Array(repeating: startPosition, count: 10)
+        func toRopePosition(_ i: Int) -> RopePosition {
+            switch i {
+            case 0: return .head
+            case 1...8: return .body(i)
+            case 9: return .tail
+            default: fatalError("toRopePosition unhandled \(i)")
+            }
+        }
         
         grid[startPosition] = .head
         print(grid.render())
@@ -182,36 +201,20 @@ struct Puzzle9RopeBridgeP2 {
             }
             rope[0] = knotPos
 
-            var followingPos = rope[1]
-            // now work out where the next knot is supposed to go
-            switch knotPos.x - followingPos.x {
-            case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
-            case 2:
-                // head is 2 points to the right of tail, tail needs to move right and into the same column as head
-                followingPos = Point(x: followingPos.x + 1, y: knotPos.y)
-            case -2:
-                // head is 2 points to the left of tail, tail needs to move left and into the same column as head
-                followingPos = Point(x: followingPos.x - 1, y: knotPos.y)
-            default: fatalError("somehow tail became detached from head")
+            // now pull the next knot
+            var prevPos = knotPos
+            for idx in 1..<rope.count {
+
+                var nextKnotPos = pull(head: prevPos, tail: rope[idx])
+                rope[idx] = nextKnotPos
+                prevPos = nextKnotPos
             }
-            
-            switch knotPos.y - followingPos.y {
-            case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
-            case 2:
-                // head is 2 points below of tail, tail needs to move down and into the same row as head
-                followingPos = Point(x: knotPos.x, y: followingPos.y + 1)
-            case -2:
-                // head is 2 points above of tail, tail needs to move up and into the same row as head
-                followingPos = Point(x: knotPos.x, y: followingPos.y - 1)
-            default: fatalError("somehow tail became detached from head")
-            }
-            rope[1] = followingPos
             
             // tailTrailGrid[followingPos] = .tail
             
             var frame = Grid(rows: grid.rows, cols: grid.cols)
             for i in rope.indices.reversed() {
-                frame[rope[i]] = i
+                frame[rope[i]] = toRopePosition(i)
             }
             
             print(frame.render())
