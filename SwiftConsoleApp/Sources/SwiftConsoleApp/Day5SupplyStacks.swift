@@ -145,7 +145,7 @@ private func printStacks(_ stacks: [Stack]) {
     }
 }
 
-struct Puzzle5SupplyStacksP1 {
+struct Day5SupplyStacksP1 {
     
     public static func run(fileName: String) throws {
         let (stacks, instructions) = try parseFile(fileName: fileName)
@@ -167,7 +167,7 @@ struct Puzzle5SupplyStacksP1 {
     }
 }
 
-struct Puzzle5SupplyStacksP2 {
+struct Day5SupplyStacksP2 {
     
     public static func run(fileName: String) throws {
         let (stacks, instructions) = try parseFile(fileName: fileName)

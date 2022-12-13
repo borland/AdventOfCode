@@ -34,14 +34,14 @@ private func findUniqueMarker(lines: [String], uniqueCharCount: Int) {
     }
 }
 
-struct Puzzle6TuningTroubleP1 {
+struct Day6TuningTroubleP1 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         findUniqueMarker(lines: lines, uniqueCharCount: 4)
     }
 }
 
-struct Puzzle6TuningTroubleP2 {
+struct Day6TuningTroubleP2 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         findUniqueMarker(lines: lines, uniqueCharCount: 14)

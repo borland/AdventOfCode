@@ -5,7 +5,7 @@ struct ElfInfo {
     let calories: Int
 }
 
-struct Puzzle1CalorieCounting {
+struct Day1CalorieCounting {
 
     static func part1(inputFile: String) throws {
         var elfNum = 1

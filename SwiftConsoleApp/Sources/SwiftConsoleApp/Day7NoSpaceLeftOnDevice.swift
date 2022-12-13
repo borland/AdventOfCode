@@ -125,7 +125,7 @@ fileprivate func parseTerminalLog(lines: [String]) -> VirtualFileSystem.Dir {
     return root
 }
 
-struct Puzzle7NoSpaceLeftOnDeviceP1 {
+struct Day7NoSpaceLeftOnDeviceP1 {
 
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
@@ -161,7 +161,7 @@ struct Puzzle7NoSpaceLeftOnDeviceP1 {
     }
 }
 
-struct Puzzle7NoSpaceLeftOnDeviceP2 {
+struct Day7NoSpaceLeftOnDeviceP2 {
 
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)

@@ -68,7 +68,7 @@ private let realMonkeys: [Monkey] = [
         throwTo: { $0 % 5 == 0 ? 1: 3 }),
 ]
 
-struct Puzzle11MonkeyInTheMiddleP1 {
+struct Day11MonkeyInTheMiddleP1 {
 
     static func run() {
         let monkeys = exampleMonkeys
@@ -113,10 +113,8 @@ struct Puzzle11MonkeyInTheMiddleP2 {
     static func run() {
         let monkeys = exampleMonkeys
         
-        for r in 0..<1 {
-            if r % 100 == 0 {
-                print("round \(r)")
-            }
+        for r in 0..<6 {
+            print("round \(r)")
             
             for monkey in monkeys {
                 while !monkey.items.isEmpty {
@@ -127,6 +125,12 @@ struct Puzzle11MonkeyInTheMiddleP2 {
                     let throwTarget = monkey.throwTo(worryLevel)
                     monkeys[throwTarget].items.append(worryLevel)
                 }
+            }
+            
+            // print the output
+            for (idx, monkey) in monkeys.enumerated() {
+                let csv = monkey.items.map{ String($0) }.joined(separator: ",")
+                print("Monkey \(idx): \(csv)")
             }
         }
         

@@ -35,7 +35,7 @@ struct RoundChoices {
     }
 }
 
-struct Puzzle2RockPaperScissorsP1 {
+struct Day2RockPaperScissorsP1 {
 
     static func parseFile(fileName: String) throws -> [RoundChoices] {
         return try linesInFile(fileName)
@@ -82,7 +82,7 @@ struct Puzzle2RockPaperScissorsP1 {
     }
 }
 
-struct Puzzle2RockPaperScissorsP2 {
+struct Day2RockPaperScissorsP2 {
     struct GuideEntry {
         let opponentChoice: Shape
         let desiredOutcome: Outcome

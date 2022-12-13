@@ -78,13 +78,13 @@ private func parseInstruction(text: String) -> [Instruction] {
     }
 }
 
-struct Puzzle9RopeBridgeP1 {
+struct Day9RopeBridgeP1 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         
-        var grid = Grid(rows: 10, cols: 10)
+        var grid = Grid(rows: 26, cols: 20)
 //        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
-        let startPosition = Point(x: 0, y: grid.rows-1)
+        let startPosition = Point(x: 11, y: 15)
         
         var headPos = startPosition
         var tailPos = startPosition
@@ -132,40 +132,34 @@ struct Puzzle9RopeBridgeP1 {
 // tail is the knot we are moving
 // head is the knot that pulled us
 private func pull(head: Point, tail: Point) -> Point {
-    var result = tail
-    switch head.x - tail.x {
-    case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
-    case 2:
-        // head is 2 points to the right of tail, tail needs to move right and into the same column as head
-        result = Point(x: tail.x + 1, y: head.y)
-    case -2:
-        // head is 2 points to the left of tail, tail needs to move left and into the same column as head
-        result = Point(x: tail.x - 1, y: head.y)
-    default: fatalError("somehow tail became detached from head")
-    }
-    // our pull function allows both x and y to move at the same time. Block this
-//    if result != tail { return result }
+    let xDistance = head.x - tail.x
+    let yDistance = head.y - tail.y
     
-    switch head.y - tail.y {
-    case -1, 0, 1: break // tail is 0 or 1 space away from head, nothing to be done
-    case 2:
-        // head is 2 points below of tail, tail needs to move down and into the same row as head
-        result = Point(x: head.x, y: tail.y + 1)
-    case -2:
-        // head is 2 points above of tail, tail needs to move up and into the same row as head
-        result = Point(x: head.x, y: tail.y - 1)
-    default: fatalError("somehow tail became detached from head")
+    switch (xDistance, yDistance) {
+    case (-1...1, -1...1): return tail // no need to move, it's already close enough
+        
+    // If the head is ever two steps directly up, down, left, or right from the tail, the tail must also move one step in that direction so it remains close enough:
+    case (1..., 0): return Point(x: tail.x+1, y: tail.y)
+    case (...0, 0): return Point(x: tail.x-1, y: tail.y)
+    case (0, 1...): return Point(x: tail.x, y: tail.y+1)
+    case (0, ...0): return Point(x: tail.x, y: tail.y-1)
+        
+    // Otherwise, if the head and tail aren't touching and aren't in the same row or column, the tail always moves one step diagonally to keep up:
+    case (1..., 1...): return Point(x: tail.x+1, y: tail.y+1)
+    case (...0, ...0): return Point(x: tail.x-1, y: tail.y-1)
+    case (...0, 1...): return Point(x: tail.x-1, y: tail.y+1)
+    case (1..., ...0): return Point(x: tail.x+1, y: tail.y-1)
+        
+    default: fatalError("unhandled xDistance,yDistance of (\(xDistance), \(yDistance)")
     }
-    return result
 }
 
-struct Puzzle9RopeBridgeP2 {
+struct Day9RopeBridgeP2 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         
-        var grid = Grid(rows: 7, cols: 7)
-//        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
-        let startPosition = Point(x: 0, y: 6)
+        var grid = Grid(rows: 700, cols: 700)
+        let startPosition = Point(x: grid.cols / 2 - 100, y: grid.rows / 2 - 100)
         
         // head is the first element in this array, tail is the last
         var rope = Array(repeating: startPosition, count: 10)
@@ -179,7 +173,6 @@ struct Puzzle9RopeBridgeP2 {
         }
         
         grid[startPosition] = .head
-        print(grid.render())
 
         // at the end of each frame, record where the tail was at the end of the frame and keep the record
         var tailTrailGrid = Grid(rows: grid.rows, cols: grid.cols)
@@ -205,19 +198,30 @@ struct Puzzle9RopeBridgeP2 {
             var prevPos = knotPos
             for idx in 1..<rope.count {
 
-                var nextKnotPos = pull(head: prevPos, tail: rope[idx])
+                let nextKnotPos = pull(head: prevPos, tail: rope[idx])
                 rope[idx] = nextKnotPos
                 prevPos = nextKnotPos
             }
             
-            // tailTrailGrid[followingPos] = .tail
+            // after we've pulled all the knots the last one is the tail; record its position
+            tailTrailGrid[prevPos] = .tail
             
-            var frame = Grid(rows: grid.rows, cols: grid.cols)
-            for i in rope.indices.reversed() {
-                frame[rope[i]] = toRopePosition(i)
-            }
-            
-            print(frame.render())
+//            var frame = Grid(rows: grid.rows, cols: grid.cols)
+//            for i in rope.indices.reversed() {
+//                frame[rope[i]] = toRopePosition(i)
+//            }
+//            print(frame.render())
         }
+        
+        print(tailTrailGrid.render())
+        
+        let positionCount = tailTrailGrid.rawBuffer.reduce(0, { memo, pos in
+            switch pos {
+            case .tail: return memo + 1
+            default: return memo
+            }
+        })
+        
+        print("tail visited \(positionCount) positions at least once")
     }
 }

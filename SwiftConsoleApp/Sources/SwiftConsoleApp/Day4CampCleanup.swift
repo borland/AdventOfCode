@@ -19,7 +19,7 @@ fileprivate func parseFile(fileName: String) throws -> [CleanupAssignments] {
         }
 }
 
-struct Puzzle4CampCleanupP1 {
+struct Day4CampCleanupP1 {
     
     public static func run(fileName: String) throws {
         let grandTotal = try parseFile(fileName: fileName)
@@ -39,7 +39,7 @@ struct Puzzle4CampCleanupP1 {
     }
 }
 
-struct Puzzle4CampCleanupP2 {
+struct Day4CampCleanupP2 {
     
     public static func run(fileName: String) throws {
         let grandTotal = try parseFile(fileName: fileName)

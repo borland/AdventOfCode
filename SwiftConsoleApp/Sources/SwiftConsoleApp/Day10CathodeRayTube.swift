@@ -36,7 +36,7 @@ private func parseAndExecute(lines: [String], cpu: Cpu) {
     }
 }
 
-struct Puzzle10CathodeRayTubeP1 {
+struct Day10CathodeRayTubeP1 {
     
     public static func run(fileName: String) throws {
         var totalSignalStrength = 0
@@ -88,7 +88,7 @@ private class Crt {
     }
 }
 
-struct Puzzle10CathodeRayTubeP2 {
+struct Day10CathodeRayTubeP2 {
     
     public static func run(fileName: String) throws {
         let cpu = Cpu()

@@ -212,7 +212,7 @@ private func computeScenicScores(grid: TreeGrid) -> TreeGrid {
 }
 
 
-struct Puzzle8TreetopTreeHouseP1 {
+struct Day8TreetopTreeHouseP1 {
     
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
@@ -227,7 +227,7 @@ struct Puzzle8TreetopTreeHouseP1 {
     }
 }
 
-struct Puzzle8TreetopTreeHouseP2 {
+struct Day8TreetopTreeHouseP2 {
     
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)

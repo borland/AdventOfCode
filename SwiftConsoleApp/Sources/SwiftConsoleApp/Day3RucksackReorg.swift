@@ -24,7 +24,7 @@ private func priority(character: Character) -> Int {
     }
 }
 
-struct Puzzle3RucksackReorgP1 {
+struct Day3RucksackReorgP1 {
     fileprivate static func parseFile(fileName: String) throws -> [Rucksack] {
         return try linesInFile(fileName)
             .map { line in
@@ -59,9 +59,9 @@ struct Puzzle3RucksackReorgP1 {
     }
 }
 
-struct Puzzle3RucksackReorgP2 {
+struct Day3RucksackReorgP2 {
     private static func parseFile(fileName: String) throws -> [[Rucksack]] {
-        return try Puzzle3RucksackReorgP1
+        return try Day3RucksackReorgP1
             .parseFile(fileName: fileName)
             .inGroupsOf(3)
     }
