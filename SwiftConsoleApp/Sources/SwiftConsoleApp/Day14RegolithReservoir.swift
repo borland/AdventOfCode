@@ -178,3 +178,46 @@ struct Day14RegolithReservoirP1 {
         
     }
 }
+
+struct Day14RegolithReservoirP2 {
+    
+    static func run(fileName: String) throws {
+        let sandSource = Point(x: 500, y: 0)
+        
+        var grid = Grid(rows: 200, cols: 700)
+        grid[sandSource] = .sandSource
+            
+        // record the max y so we can calclate the floor
+        var maxY = 0
+        
+        for line in try linesInFile(fileName) {
+            let path = parse(line: line)
+            draw(path: path, onto: &grid)
+            
+            let maxYinPath = path.map { point in point.y }.max()!
+            if maxYinPath > maxY {
+                maxY = maxYinPath
+            }
+        }
+        
+        // add the floor
+        draw(path: [Point(x: 0, y: maxY + 2), Point(x: grid.cols-1, y: maxY + 2)], onto: &grid)
+                
+        for i in 0..<30000 {
+            guard let sandPos = sandFall(from: sandSource, on: grid) else {
+                // fell off the bottom of the grid. We're done here
+                print("came to rest after \(i) units of sand")
+                break
+            }
+            grid[sandPos] = .sand
+            
+            if sandPos == sandSource {
+                print("the sand source was blocked after \(i+1) units of sand")
+                break
+            }
+        }
+        
+        print(grid.render(x:200, y: 0, width: 500, height: 200))
+        
+    }
+}
