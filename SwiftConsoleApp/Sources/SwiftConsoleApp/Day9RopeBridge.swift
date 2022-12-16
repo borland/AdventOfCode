@@ -39,7 +39,7 @@ struct Day9RopeBridgeP1 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         
-        var grid = Grid<RopePosition>(rows: 26, cols: 20, initialValue: .none)
+        let grid = Grid<RopePosition>(rows: 26, cols: 20, initialValue: .none)
 //        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
         let startPosition = Point(x: 11, y: 15)
         
@@ -50,7 +50,7 @@ struct Day9RopeBridgeP1 {
         print(grid.render())
 
         // at the end of each frame, record where the tail was at the end of the frame and keep the record
-        var tailTrailGrid = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
+        let tailTrailGrid = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
         tailTrailGrid[startPosition] = .tail
         
         for instruction in lines.flatMap({ parseInstruction(text: $0) }) {
@@ -68,7 +68,7 @@ struct Day9RopeBridgeP1 {
                         
             tailTrailGrid[tailPos] = .tail
 
-            var frame = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
+            let frame = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
             frame[tailPos] = .tail
             frame[headPos] = .head
             print(frame.render())
@@ -115,7 +115,7 @@ struct Day9RopeBridgeP2 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         
-        var grid = Grid<RopePosition>(rows: 700, cols: 700)
+        let grid = Grid<RopePosition>(rows: 700, cols: 700)
         let startPosition = Point(x: grid.cols / 2 - 100, y: grid.rows / 2 - 100)
         
         // head is the first element in this array, tail is the last
@@ -132,7 +132,7 @@ struct Day9RopeBridgeP2 {
         grid[startPosition] = .head
 
         // at the end of each frame, record where the tail was at the end of the frame and keep the record
-        var tailTrailGrid = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
+        let tailTrailGrid = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
         tailTrailGrid[startPosition] = .tail
         
         for instruction in lines.flatMap({ parseInstruction(text: $0) }) {

@@ -28,7 +28,7 @@ private func parse(line: String) -> [Point] {
     return result
 }
 
-private func draw(path: [Point], onto grid: inout Grid<Entity>) {
+private func draw(path: [Point], onto grid: Grid<Entity>) {
     var pathIter = path.makeIterator()
     guard var sourcePt = pathIter.next(), var destPt = pathIter.next() else {
         // nothing to draw unless there's 2 or more points
@@ -101,7 +101,7 @@ struct Day14RegolithReservoirP1 {
             
         for line in try linesInFile(fileName) {
             let path = parse(line: line)
-            draw(path: path, onto: &grid)
+            draw(path: path, onto: grid)
         }
                 
         for i in 0..<1000 {
@@ -113,8 +113,8 @@ struct Day14RegolithReservoirP1 {
             grid[sandPos] = .sand
         }
         
-        // print(grid.render(x:485, y: 0, width: 30, height: 11)) // for the example, we want to look at this part of the grid
-        print(grid.render(x:405, y: 0, width: 120, height: 168)) // for the real input, make the viewport much bigger
+        let frame = grid.getInterestingViewport()
+        print(grid.render(frame: frame))
         
     }
 }
@@ -124,15 +124,15 @@ struct Day14RegolithReservoirP2 {
     static func run(fileName: String) throws {
         let sandSource = Point(x: 500, y: 0)
         
-        var grid = Grid<Entity>(rows: 200, cols: 700)
+        let grid = Grid<Entity>(rows: 200, cols: 700)
         grid[sandSource] = .sandSource
             
-        // record the max y so we can calclate the floor
+        // record the max y so we can calculate the floor
         var maxY = 0
         
         for line in try linesInFile(fileName) {
             let path = parse(line: line)
-            draw(path: path, onto: &grid)
+            draw(path: path, onto: grid)
             
             let maxYinPath = path.map { point in point.y }.max()!
             if maxYinPath > maxY {
@@ -140,8 +140,11 @@ struct Day14RegolithReservoirP2 {
             }
         }
         
-        // add the floor
-        draw(path: [Point(x: 0, y: maxY + 2), Point(x: grid.cols-1, y: maxY + 2)], onto: &grid)
+        let frame = grid.getInterestingViewport()!
+        let expandedFrame = Frame(x: frame.x - 8, y: 0, width: frame.width + 18, height: frame.height + 2)
+        
+        // add the floor AFTER we've calculated the interesting viewport
+        draw(path: [Point(x: 0, y: maxY + 2), Point(x: grid.cols-1, y: maxY + 2)], onto: grid)
                 
         for i in 0..<30000 {
             guard let sandPos = sandFall(from: sandSource, on: grid) else {
@@ -157,7 +160,7 @@ struct Day14RegolithReservoirP2 {
             }
         }
         
-        print(grid.render(x:200, y: 0, width: 500, height: 200))
+        print(grid.render(frame: expandedFrame))
         
     }
 }
