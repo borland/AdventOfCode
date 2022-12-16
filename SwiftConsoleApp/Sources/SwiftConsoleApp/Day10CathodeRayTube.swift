@@ -56,35 +56,14 @@ struct Day10CathodeRayTubeP1 {
     }
 }
 
-private class Crt {
-    let rows = 6
-    let cols = 40
-    var pixelBuffer: [Bool]
+extension Bool : Renderable {
+    static var defaultValue: Bool = false
     
-    init() {
-        self.pixelBuffer = Array(repeating: false, count: rows * cols)
-    }
-    
-    subscript(x: Int, y: Int) -> Bool {
-        get {
-            if x < 0 || y < 0 || x >= cols || y >= rows { fatalError("x or y out of range") }
-            return pixelBuffer[y * cols + x]
+    func render() -> Character {
+        switch self {
+        case true: return "#"
+        case false: return "."
         }
-        set {
-            if x < 0 || y < 0 || x >= cols || y >= rows { fatalError("x or y out of range") }
-            pixelBuffer[y * cols + x] = newValue
-        }
-    }
-    
-    func render() -> String {
-        var output = ""
-        for i in pixelBuffer.indices {
-            output += pixelBuffer[i] ? "#" : "."
-            if i % cols == cols-1 {
-                output += "\n"
-            }
-        }
-        return output
     }
 }
 
@@ -92,7 +71,7 @@ struct Day10CathodeRayTubeP2 {
     
     public static func run(fileName: String) throws {
         let cpu = Cpu()
-        let crt = Crt()
+        let crt = Grid<Bool>(rows: 6, cols: 40)
         
         cpu.observer = { cycle, xRegister in
             // our CPU cycle numbers are 1-based, need to offset this for the maths to work

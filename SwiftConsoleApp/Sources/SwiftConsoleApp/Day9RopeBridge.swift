@@ -1,61 +1,18 @@
 import Foundation
 
 // if head and tail are in the same space we just show head so no need to track both specifically
-private enum RopePosition {
+private enum RopePosition : Renderable {
     case none, head, body(Int), tail
-}
-
-private struct Point : Equatable {
-    let x: Int
-    let y: Int
-}
-
-private struct Grid {
-    let rows: Int
-    let cols: Int
-    var rawBuffer: [RopePosition]
     
-    init(rows: Int, cols: Int) {
-        self.rows = rows
-        self.cols = cols
-        self.rawBuffer = Array(repeating: .none, count: rows * cols)
-    }
+    static let defaultValue: RopePosition = .none
     
-    subscript(x: Int, y: Int) -> RopePosition {
-        get {
-            if x < 0 || y < 0 || x >= cols || y >= rows { fatalError("x or y out of range") }
-            return rawBuffer[y * cols + x]
+    func render() -> Character {
+        switch self {
+        case .head: return "H"
+        case .body(let n): return "\(n)".first!
+        case .tail: return "T"
+        default: return "."
         }
-        set {
-            if x < 0 || y < 0 || x >= cols || y >= rows { fatalError("x or y out of range") }
-            rawBuffer[y * cols + x] = newValue
-        }
-    }
-    
-    subscript(point: Point) -> RopePosition {
-        get { self[point.x, point.y] }
-        set { self[point.x, point.y] = newValue }
-    }
-    
-    func render() -> String {
-        var output = ""
-        for i in rawBuffer.indices {
-            switch rawBuffer[i] {
-            case .head:
-                output += "H"
-            case .body(let n):
-                output += "\(n)"
-            case .tail:
-                output += "T"
-            default:
-                output += "."
-            }
-            
-            if i % cols == cols-1 {
-                output += "\n"
-            }
-        }
-        return output
     }
 }
 
@@ -82,7 +39,7 @@ struct Day9RopeBridgeP1 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         
-        var grid = Grid(rows: 26, cols: 20)
+        var grid = Grid<RopePosition>(rows: 26, cols: 20, initialValue: .none)
 //        let startPosition = Point(x: grid.cols / 2, y: grid.rows / 2)
         let startPosition = Point(x: 11, y: 15)
         
@@ -93,7 +50,7 @@ struct Day9RopeBridgeP1 {
         print(grid.render())
 
         // at the end of each frame, record where the tail was at the end of the frame and keep the record
-        var tailTrailGrid = Grid(rows: grid.rows, cols: grid.cols)
+        var tailTrailGrid = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
         tailTrailGrid[startPosition] = .tail
         
         for instruction in lines.flatMap({ parseInstruction(text: $0) }) {
@@ -111,7 +68,7 @@ struct Day9RopeBridgeP1 {
                         
             tailTrailGrid[tailPos] = .tail
 
-            var frame = Grid(rows: grid.rows, cols: grid.cols)
+            var frame = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
             frame[tailPos] = .tail
             frame[headPos] = .head
             print(frame.render())
@@ -158,7 +115,7 @@ struct Day9RopeBridgeP2 {
     public static func run(fileName: String) throws {
         let lines = try linesInFile(fileName)
         
-        var grid = Grid(rows: 700, cols: 700)
+        var grid = Grid<RopePosition>(rows: 700, cols: 700)
         let startPosition = Point(x: grid.cols / 2 - 100, y: grid.rows / 2 - 100)
         
         // head is the first element in this array, tail is the last
@@ -175,7 +132,7 @@ struct Day9RopeBridgeP2 {
         grid[startPosition] = .head
 
         // at the end of each frame, record where the tail was at the end of the frame and keep the record
-        var tailTrailGrid = Grid(rows: grid.rows, cols: grid.cols)
+        var tailTrailGrid = Grid<RopePosition>(rows: grid.rows, cols: grid.cols)
         tailTrailGrid[startPosition] = .tail
         
         for instruction in lines.flatMap({ parseInstruction(text: $0) }) {
