@@ -55,7 +55,7 @@ private func draw(path: [Point], onto grid: Grid<Entity>) {
 }
 
 // simulates sand falling. returns nil if we fall off the edge of the grid
-private func sandFall(from: Point, on grid: Grid<Entity>) -> Point? {
+private func dropSand(from: Point, on grid: Grid<Entity>) -> Point? {
     enum Fallable {
         case free, blocked, outOfBounds
     }
@@ -68,25 +68,20 @@ private func sandFall(from: Point, on grid: Grid<Entity>) -> Point? {
     }
     
     var (x, y) = (from.x, from.y)
-    while true { // assume we start in a sensible place
+    while true {
         switch (fallable(x-1, y+1), fallable(x, y+1), fallable(x+1, y+1)) {
-        case (_, .free, _):
-            // we can fall directly down.
+        case (_, .free, _): // we can fall directly down.
             y = y + 1
-        case (.free, .blocked, _):
-            // we can't fall directly down but we can fall to the left
+        case (.free, .blocked, _): // we can't fall directly down but we can fall to the left
             x = x - 1
             y = y + 1
-        case (.blocked, .blocked, .free):
-            // we can't fall down or left but we can fall to the right
+        case (.blocked, .blocked, .free): // we can't fall down or left but we can fall to the right
             x = x + 1
             y = y + 1
         case (.blocked, .blocked, .blocked):
-            // we can't fall at all. Stop here
-            return Point(x: x, y: y)
+            return Point(x: x, y: y) // we can't fall at all. Stop here
         default:
-            // other things will be out of bounds
-            return nil
+            return nil // other things will be out of bounds
         }
     }
 }
@@ -96,7 +91,7 @@ struct Day14RegolithReservoirP1 {
     static func run(fileName: String) throws {
         let sandSource = Point(x: 500, y: 0)
         
-        var grid = Grid<Entity>(rows: 550, cols: 550)
+        let grid = Grid<Entity>(rows: 550, cols: 550)
         grid[sandSource] = .sandSource
             
         for line in try linesInFile(fileName) {
@@ -105,7 +100,7 @@ struct Day14RegolithReservoirP1 {
         }
                 
         for i in 0..<1000 {
-            guard let sandPos = sandFall(from: sandSource, on: grid) else {
+            guard let sandPos = dropSand(from: sandSource, on: grid) else {
                 // fell off the bottom of the grid. We're done here
                 print("came to rest after \(i) units of sand")
                 break
@@ -147,7 +142,7 @@ struct Day14RegolithReservoirP2 {
         draw(path: [Point(x: 0, y: maxY + 2), Point(x: grid.cols-1, y: maxY + 2)], onto: grid)
                 
         for i in 0..<30000 {
-            guard let sandPos = sandFall(from: sandSource, on: grid) else {
+            guard let sandPos = dropSand(from: sandSource, on: grid) else {
                 // fell off the bottom of the grid. We're done here
                 print("came to rest after \(i) units of sand")
                 break
