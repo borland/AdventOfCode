@@ -3,26 +3,28 @@ import Foundation
 
 private class Monkey {
     let name: String
-    let action: ([Monkey]) -> Int?
+    let action: () -> Int?
     
     var yelled: Int? = nil // nil if they haven't yelled yet
     
-    init(name: String, action: @escaping ([Monkey]) -> Int?) {
+    init(name: String, action: @escaping () -> Int?) {
         self.name = name
         self.action = action
     }
 }
 
 private func parse(lines: [String]) -> [Monkey] {
+    var lookup: [String:Monkey] = [:]
+    
     return lines.map { line in
         let outerComponents = line.split(separator: ":").map{ $0.trimmed() }
         
         let name = outerComponents[0]
-        let action: ([Monkey]) -> Int?
+        let action: () -> Int?
         
         let exprComponents = outerComponents[1].split(separator: " ").map { $0.trimmed() }
         if exprComponents.count == 1, let val = Int(exprComponents[0]) {
-            action = { _ in val }
+            action = { val }
         } else if exprComponents.count == 3 {
             let leftMonkey = exprComponents[0]
             let rightMonkey = exprComponents[2]
@@ -35,9 +37,9 @@ private func parse(lines: [String]) -> [Monkey] {
             default: fatalError("can't parse line \(line); invalid op \(exprComponents[1])")
             }
             
-            action = { (monkeys) in
-                if let leftVal = monkeys.first(where: { $0.name == leftMonkey })?.yelled,
-                   let rightVal = monkeys.first(where: { $0.name == rightMonkey })?.yelled {
+            action = {
+                if let leftVal = lookup[leftMonkey]?.yelled,
+                   let rightVal = lookup[rightMonkey]?.yelled {
                     // both our inputs have yelled, we can too.
                     return op(leftVal, rightVal)
                 }
@@ -47,7 +49,9 @@ private func parse(lines: [String]) -> [Monkey] {
             fatalError("can't parse line \(line)")
         }
         
-        return Monkey(name: name, action: action)
+        let monkey = Monkey(name: name, action: action)
+        lookup[name] = monkey
+        return monkey
     }
 }
 
@@ -60,14 +64,12 @@ struct Day21MonkeyMathP1 {
             print("round \(i)")
             for m in monkeys {
                 if m.yelled == nil {
-                    m.yelled = m.action(monkeys)
+                    m.yelled = m.action()
                     if let y = m.yelled {
-                        print("\(m.name) has yelled the value \(y)")
                         if m.name == "root" {
+                            print("\(m.name) has yelled the value \(y)")
                             return // all done
                         }
-                    } else {
-                        print("\(m.name) has not yet yelled anything")
                     }
                 }
             }
