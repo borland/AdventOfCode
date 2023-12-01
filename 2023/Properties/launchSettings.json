@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "aoc203": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Dev\\AdventOfCode\\2023"
+    }
+  }
+}
