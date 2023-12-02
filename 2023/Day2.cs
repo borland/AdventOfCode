@@ -42,21 +42,17 @@ class Day2
         return true;
     }
 
-    static Game ParseGame(string line)
+    static Game ParseGame(ReadOnlySpan<char> line)
     {
         var reader = new DelimitedLineReader(line);
 
-        reader.MovePast("Game ");
-        reader.ReadInt(out var gameId);
-        reader.MovePast(": ");
+        reader.MovePast("Game ").ReadInt(out var gameId).MovePast(": ");
 
         var sets = new List<CubeSet>();
         int red = 0, green = 0, blue = 0;
         while (reader.HasDataRemaining())
         {
-            reader.ReadInt(out int n);
-            reader.MovePast(" ");
-            reader.Scan(char.IsAsciiLetterLower, out var color);
+            reader.ReadInt(out int n).MovePast(" ").Scan(char.IsAsciiLetterLower, out var color);
 
             switch (color)
             {
@@ -123,7 +119,7 @@ class Day2
     public static void Part2(string input)
     {
         var total = 0;
-        foreach (var line in input.EnumerateLines())
+        foreach(var line in input.EnumerateLines())
         {
             var game = ParseGame(line);
             var m = MinimumPossibleCubes(game.CubeSets);

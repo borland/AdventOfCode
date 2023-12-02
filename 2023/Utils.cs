@@ -24,7 +24,8 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
     readonly ReadOnlySpan<char> line = line;
     public int CurrentPosition { get; private set; }
 
-    public int MovePast(ReadOnlySpan<char> expectedText)
+    // the MovePast extension method is probably what you want instead of this
+    public int MovePastReturningPosition(ReadOnlySpan<char> expectedText)
     {
         if (CurrentPosition + expectedText.Length > line.Length)
         {
@@ -71,14 +72,37 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
         return int.Parse(span);
     }
 
-    public int ReadInt(out int into)
-    {
-        into = ReadInt();
-        return CurrentPosition;
-    }
-
     public readonly bool HasDataRemaining() => CurrentPosition < line.Length;
 
     // returns the character at the current position, then moves forward by 1
     public char ReadChar() => line[CurrentPosition++];
+}
+
+// Interesting. I want to use the builder pattern for DelimitedLineReader (where all the methods return `this` so you can chain them)
+// but I also want the reader not to allocate anything on the heap, so we can create a reader-per-line extremely cheaply.
+// `ref struct` achieves the latter, but if you do `return this` from within a ref struct, it makes a copy.
+// 
+// This workaround using extension methods seems to be the way to achieve the desired result.
+// https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs8170?f1url=%3FappId%3Droslyn%26k%3Dk(CS8170)
+// Essentially, we treat the whole thing as a byref type, except it's allocated on the stack.
+// C++ here we come
+static class DelimitedLineReaderExtensions
+{
+    public static ref DelimitedLineReader MovePast(this ref DelimitedLineReader reader, ReadOnlySpan<char> expectedText)
+    {
+        reader.MovePastReturningPosition(expectedText);
+        return ref reader;
+    }
+
+    public static ref DelimitedLineReader Scan(this ref DelimitedLineReader reader, Func<char, bool> predicate, out ReadOnlySpan<char> into)
+    {
+        into = reader.Scan(predicate);
+        return ref reader;
+    }
+
+    public static ref DelimitedLineReader ReadInt(this ref DelimitedLineReader reader, out int into)
+    {
+        into = reader.ReadInt();
+        return ref reader;
+    }
 }
