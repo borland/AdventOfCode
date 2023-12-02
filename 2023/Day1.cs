@@ -11,9 +11,13 @@ class Day1
 
     public static string LoadInput() => File.ReadAllText("Day1-input.txt");
 
-    static int ComputeCalibrationValue(string line)
+    static int ComputeCalibrationValue(ReadOnlySpan<char> line)
     {
-        var digitChars = line.Where(char.IsAsciiDigit).ToList();
+        var digitChars = new List<char>();
+        foreach(var ch in line)
+        {
+            if (char.IsAsciiDigit(ch)) digitChars.Add(ch);
+        }
 
         // a single digit is both the first and last digiti
         if (digitChars.Count == 1) digitChars.Add(digitChars[0]);
@@ -45,7 +49,7 @@ class Day1
         7pqrstsixteen
         """;
 
-    static int ComputeCalibrationValueIncludingWords(string line)
+    static int ComputeCalibrationValueIncludingWords(ReadOnlySpan<char> line)
     {
         var digitChars = new List<char>();
 

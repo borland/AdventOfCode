@@ -1,4 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
-using aoc203;
+﻿using aoc203;
 
-Day2.Part2(Day2.LoadInput());
+var input = Day2.LoadInput();
+
+//var startAlloc = GC.GetAllocatedBytesForCurrentThread();
+
+Day2.Part2(input);
+
+//var endAlloc = GC.GetAllocatedBytesForCurrentThread();
+
+// Console.WriteLine("{0} bytes allocated by function", endAlloc-startAlloc);

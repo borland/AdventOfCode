@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace aoc203;
+﻿namespace aoc203;
 
 class Day2
 {
@@ -118,7 +116,7 @@ class Day2
 
     public static void Part2(string input)
     {
-        var total = 0;
+        int total = 0;
         foreach(var line in input.EnumerateLines())
         {
             var game = ParseGame(line);
