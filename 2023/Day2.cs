@@ -1,4 +1,6 @@
-﻿namespace aoc203;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace aoc203;
 
 class Day2
 {
@@ -18,7 +20,7 @@ class Day2
         foreach (var line in input.EnumerateLines())
         {
             var game = ParseGame(line);
-            if(GameIsPossible(game, new CubeSet(12, 13, 14)))
+            if (GameIsPossible(game, new CubeSet(12, 13, 14)))
             {
                 Console.WriteLine("Game {0} is possible", game.Id);
                 total += game.Id;
@@ -28,9 +30,12 @@ class Day2
         Console.WriteLine("Total is {0}", total);
     }
 
+    static string GameToString(Game game)
+        => $"Game {game.Id}: {string.Join("; ", game.CubeSets.Select(s => $"{s.Red} red, {s.Green} green, {s.Blue} blue"))}";
+
     static bool GameIsPossible(Game game, CubeSet bagContents)
     {
-        foreach(var set in game.CubeSets)
+        foreach (var set in game.CubeSets)
         {
             if (set.Red > bagContents.Red || set.Green > bagContents.Green || set.Blue > bagContents.Blue) return false;
         }
@@ -38,6 +43,52 @@ class Day2
     }
 
     static Game ParseGame(string line)
+    {
+        var reader = new DelimitedLineReader(line);
+
+        reader.MovePast("Game ");
+        reader.ReadInt(out var gameId);
+        reader.MovePast(": ");
+
+        var sets = new List<CubeSet>();
+        int red = 0, green = 0, blue = 0;
+        while (reader.HasDataRemaining())
+        {
+            reader.ReadInt(out int n);
+            reader.MovePast(" ");
+            reader.Scan(char.IsAsciiLetterLower, out var color);
+
+            switch (color)
+            {
+                case "red": red = n; break;
+                case "green": green = n; break;
+                case "blue": blue = n; break;
+                default: throw new FormatException($"Unhandled color {color}");
+            }
+
+            if(reader.HasDataRemaining())
+            {
+                var ch = reader.ReadChar();
+                switch (ch)
+                {
+                    case ';':
+                        reader.Scan(char.IsWhiteSpace);
+                        sets.Add(new CubeSet(red, green, blue));
+                        red = green = blue = 0;
+                        break;
+                    case ',':
+                        reader.Scan(char.IsWhiteSpace);
+                        break;
+                    default:
+                        throw new FormatException($"Unexpected nextChar {ch}");
+                }
+            }
+        }
+        sets.Add(new CubeSet(red, green, blue)); // don't forget the last item
+        return new Game(gameId, sets);
+    }
+
+    static Game ParseGameWithSplits(string line)
     {
         var outerComponents = line.Split(':', StringSplitOptions.TrimEntries);
         if (outerComponents.Length != 2 || !outerComponents[0].StartsWith("Game ")) throw new FormatException("Expected Line to be in format 'Game N: CubeSets'");
@@ -87,7 +138,7 @@ class Day2
     static CubeSet MinimumPossibleCubes(IEnumerable<CubeSet> cubeSets)
     {
         int maxRed = 0, maxGreen = 0, maxBlue = 0;
-        foreach(var (r, g, b) in cubeSets)
+        foreach (var (r, g, b) in cubeSets)
         {
             if (r > maxRed) maxRed = r;
             if (g > maxGreen) maxGreen = g;
