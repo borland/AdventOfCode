@@ -62,9 +62,7 @@ class Day3
         // in part 2 we only care about gears.
         // Key: Gear location
         // Value: List of part numbers adjacent to this Gear
-        var gears = tokens.OfType<SchemaToken.Symbol>().Where(t => t.Value == '*').ToDictionary(t => new Point(t.Y, t.StartX), t => new List<SchemaToken.Number>());
-
-        var partNumberTokens = new List<SchemaToken.Number>();
+        var gears = tokens.OfType<SchemaToken.Symbol>().Where(t => t.Value == '*').ToDictionary(t => new Point(t.Y, t.StartX), t => new List<int>());
 
         foreach (var numberToken in tokens.OfType<SchemaToken.Number>())
         {
@@ -75,25 +73,21 @@ class Day3
             {
                 foreach (int xPos in Enumerable.Range(left, numberToken.EndX - numberToken.StartX + 3)) // endX is inclusive so we need + 3
                 {
-                    if (gears.TryGetValue(new Point(yPos, xPos), out var adjacentParts) && !adjacentParts.Contains(numberToken))
+                    if (gears.TryGetValue(new Point(yPos, xPos), out var adjacentParts) && !adjacentParts.Contains(numberToken.Value))
                     {
-                        adjacentParts.Add(numberToken);
+                        adjacentParts.Add(numberToken.Value);
                     }
                 }
             }
         }
 
-        var gearsWithExactlyTwoPartNumbers = gears.Values.Where(l => l.Count == 2);
         var total = 0;
-        foreach(var z in gearsWithExactlyTwoPartNumbers)
+        foreach(var z in gears.Values.Where(l => l.Count == 2))
         {
-            var firstValue = z[0].Value;
-            var secondValue = z[1].Value;
-            var gearRatio = firstValue * secondValue;
+            var gearRatio = z[0] * z[1];
+            //Console.WriteLine("First gear is {0}, second gear is {1}, ratio is {2}", z[0], z[1], gearRatio);
             total += gearRatio;
-            //Console.WriteLine("First gear is {0}, second gear is {1}, ratio is {2}", firstValue, secondValue, gearRatio);
         }
-
         Console.WriteLine("Sum of gear ratios is {0}", total);
     }
 
