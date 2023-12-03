@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Linq;
-
-namespace aoc203;
+﻿namespace aoc203;
 
 class Day3
 {
@@ -56,8 +53,6 @@ class Day3
     public static void Part2(string input)
     {
         var tokens = ParseSchematic(input);
-
-        // any number adjacent to a symbol, even diagonally, is a "part number" and should be included in your sum.
 
         // in part 2 we only care about gears.
         // Key: Gear location
