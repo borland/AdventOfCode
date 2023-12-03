@@ -69,6 +69,9 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
 
     // returns the character at the current position, then moves forward by 1
     public char ReadChar() => line[CurrentPosition++];
+
+    // returns the character at the current position, but doesn't move forward
+    public char PeekChar() => line[CurrentPosition];
 }
 
 // Interesting. I want to use the builder pattern for DelimitedLineReader (where all the methods return `this` so you can chain them)
