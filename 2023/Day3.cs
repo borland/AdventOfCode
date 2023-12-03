@@ -128,6 +128,4 @@ class Day3
         internal record Number(int Y, int StartX, int EndX, int Value) : SchemaToken(Y, StartX, EndX);
         internal record Symbol(int Y, int StartX, int EndX, char Value) : SchemaToken(Y, StartX, EndX);
     }
-
-    record Schematic(IReadOnlyList<SchemaToken> Tokens);
 }
