@@ -1,4 +1,6 @@
-﻿namespace aoc203;
+﻿using System;
+
+namespace aoc203;
 
 static class Utils
 {
@@ -10,6 +12,11 @@ static class Utils
             yield return line;
         }
     }
+}
+
+enum InputSource
+{
+    Example, Real
 }
 
 ref struct DelimitedLineReader(ReadOnlySpan<char> line)
@@ -59,8 +66,10 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
         return CurrentPosition;
     }
 
+    // reads an integer, skipping past any leading whitespace
     public int ReadInt()
     {
+        Scan(char.IsWhiteSpace); // skip past
         var span = Scan(char.IsAsciiDigit);
         return int.Parse(span);
     }
@@ -69,6 +78,9 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
 
     // returns the character at the current position, then moves forward by 1
     public char ReadChar() => line[CurrentPosition++];
+
+    // simply moves the current position forward by 1
+    public void NextChar() => CurrentPosition++;
 
     // returns the character at the current position, but doesn't move forward
     public char PeekChar() => line[CurrentPosition];

@@ -44,7 +44,7 @@ class Day2
     {
         var reader = new DelimitedLineReader(line);
 
-        reader.MovePast("Game ").ReadInt(out var gameId).MovePast(": ");
+        reader.MovePast("Game").ReadInt(out var gameId).MovePast(":");
 
         var sets = new List<CubeSet>();
         int red = 0, green = 0, blue = 0;

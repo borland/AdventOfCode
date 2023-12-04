@@ -111,7 +111,7 @@ class Day3
                     {
                         tokens.Add(new SchemaToken.Symbol(y, reader.CurrentPosition, reader.CurrentPosition, currentChar));
                     }
-                    reader.ReadChar(); // advance one
+                    reader.NextChar();
                 }
             }
             y++;
