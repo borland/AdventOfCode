@@ -24,7 +24,7 @@ class Day3
         // any number adjacent to a symbol, even diagonally, is a "part number" and should be included in your sum.
 
         // we know symbols are only of length 1
-        var symbolLocations = tokens.OfType<SchemaToken.Symbol>().Select(t => new Point(t.Y, t.StartX)).ToHashSet();
+        var symbolLocations = tokens.OfType<SchemaToken.Symbol>().Select(t => new Point(t.StartX, t.Y)).ToHashSet();
 
         var partNumberTokens = new List<SchemaToken.Number>();
 
@@ -37,7 +37,7 @@ class Day3
             { 
                 foreach (int xPos in Enumerable.Range(left, numberToken.EndX - numberToken.StartX + 3)) // endX is inclusive so we need + 3
                 {
-                    if(symbolLocations.Contains(new Point(yPos, xPos)))
+                    if(symbolLocations.Contains(new Point(xPos, yPos)))
                     {
                         partNumberTokens.Add(numberToken);
                         goto nextToken;
@@ -57,7 +57,7 @@ class Day3
         // in part 2 we only care about gears.
         // Key: Gear location
         // Value: List of part numbers adjacent to this Gear
-        var gears = tokens.OfType<SchemaToken.Symbol>().Where(t => t.Value == '*').ToDictionary(t => new Point(t.Y, t.StartX), t => new List<int>());
+        var gears = tokens.OfType<SchemaToken.Symbol>().Where(t => t.Value == '*').ToDictionary(t => new Point(t.StartX, t.Y), t => new List<int>());
 
         foreach (var numberToken in tokens.OfType<SchemaToken.Number>())
         {
@@ -68,7 +68,7 @@ class Day3
             {
                 foreach (int xPos in Enumerable.Range(left, numberToken.EndX - numberToken.StartX + 3)) // endX is inclusive so we need + 3
                 {
-                    if (gears.TryGetValue(new Point(yPos, xPos), out var adjacentParts) && !adjacentParts.Contains(numberToken.Value))
+                    if (gears.TryGetValue(new Point(xPos, yPos), out var adjacentParts) && !adjacentParts.Contains(numberToken.Value))
                     {
                         adjacentParts.Add(numberToken.Value);
                     }
@@ -103,13 +103,13 @@ class Day3
                     var startX = reader.CurrentPosition;
                     var schemaNumber = reader.ReadInt();
                     var endX = reader.CurrentPosition-1;
-                    tokens.Add(new SchemaToken.Number(y, startX, endX, schemaNumber));
+                    tokens.Add(new SchemaToken.Number(startX, endX, y, schemaNumber));
                 }
                 else
                 {
                     if (currentChar != '.')
                     {
-                        tokens.Add(new SchemaToken.Symbol(y, reader.CurrentPosition, reader.CurrentPosition, currentChar));
+                        tokens.Add(new SchemaToken.Symbol(reader.CurrentPosition, reader.CurrentPosition, y, currentChar));
                     }
                     reader.NextChar();
                 }
@@ -120,12 +120,12 @@ class Day3
         return tokens;
     }
 
-    record struct Point(int Y, int X);
+    record struct Point(int X, int Y);
 
     // EndX is inclusive, so a single-character token will have both StartX and EndX at the same value.
-    internal abstract record SchemaToken(int Y, int StartX, int EndX)
+    internal abstract record SchemaToken(int StartX, int EndX, int Y)
     {
-        internal record Number(int Y, int StartX, int EndX, int Value) : SchemaToken(Y, StartX, EndX);
-        internal record Symbol(int Y, int StartX, int EndX, char Value) : SchemaToken(Y, StartX, EndX);
+        internal record Number(int StartX, int EndX, int Y, int Value) : SchemaToken(StartX, EndX, Y);
+        internal record Symbol(int StartX, int EndX, int Y, char Value) : SchemaToken(StartX, EndX, Y);
     }
 }
