@@ -74,6 +74,22 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
         return int.Parse(span);
     }
 
+    // reads a long integer, skipping past any leading whitespace
+    public long ReadLong()
+    {
+        Scan(char.IsWhiteSpace); // skip past
+        var span = Scan(char.IsAsciiDigit);
+        return long.Parse(span);
+    }
+
+    // reads a long integer, skipping past any leading whitespace
+    public string ReadWord()
+    {
+        Scan(char.IsWhiteSpace); // skip past
+        var span = Scan(char.IsAsciiLetter);
+        return span.ToString();
+    }
+
     public readonly bool HasDataRemaining() => CurrentPosition < line.Length;
 
     // returns the character at the current position, then moves forward by 1
@@ -111,6 +127,18 @@ static class DelimitedLineReaderExtensions
     public static ref DelimitedLineReader ReadInt(this ref DelimitedLineReader reader, out int into)
     {
         into = reader.ReadInt();
+        return ref reader;
+    }
+
+    public static ref DelimitedLineReader ReadLong(this ref DelimitedLineReader reader, out long into)
+    {
+        into = reader.ReadLong();
+        return ref reader;
+    }
+
+    public static ref DelimitedLineReader ReadWord(this ref DelimitedLineReader reader, out string into)
+    {
+        into = reader.ReadWord();
         return ref reader;
     }
 }
