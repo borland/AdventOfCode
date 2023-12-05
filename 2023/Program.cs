@@ -11,5 +11,5 @@
 
 // Day4.Part1(InputSource.Real);
 
-Day5.Part1(InputSource.Example);
+Day5.Part1(InputSource.Real);
 

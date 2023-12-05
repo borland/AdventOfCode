@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace aoc203;
 
@@ -54,24 +55,42 @@ class Day5
         var currentMap = almanac.Maps.Single(m => m.From == "seed");
         var currentValues = almanac.Seeds;
 
-        // location is always our end goal
-        while(currentMap.To != "location")
+        // keep going until we've processed all the maps
+        while(currentMap != null)
         {
-            currentValues = currentValues.Select(v => ConvertToDestination(currentMap.Entries, v)).ToList();
+            currentValues = currentValues.Select(v => ConvertItem(currentMap.Entries, v)).ToList();
 
             // next stage; deliberate crash if we can't find one, that means the input is malformed
-            currentMap = almanac.Maps.Single(m => m.From == currentMap.To);
+            currentMap = almanac.Maps.SingleOrDefault(m => m.From == currentMap.To);
         }
 
         Console.WriteLine("Lowest location number is {0}", currentValues.Min());
     }
 
-    static long ConvertToDestination(IReadOnlyList<MapEntry> mapEntries, long sourceNumber)
+    // I used this to debug the parsing process and ensure that I wasn't missing something. It's fine
+    //static void PrintReconstructedAlmanac(Almanac almanac)
+    //{
+    //    var sb = new StringBuilder();
+    //    sb.AppendLine($"seeds: {string.Join(" ", almanac.Seeds.Select(s => s.ToString()))}");
+    //    sb.AppendLine();
+    //    foreach(var map in almanac.Maps)
+    //    {
+    //        sb.AppendLine($"{map.From}-to-{map.To} map:");
+    //        foreach(var entry in map.Entries)
+    //        {
+    //            sb.AppendLine($"{entry.DestinationRangeStart} {entry.SourceRangeStart} {entry.RangeLength}");
+    //        }
+    //        sb.AppendLine();
+    //    }
+
+    //    File.WriteAllText("C:\\Dev\\AdventOfCode\\2023\\Day5-reconstructed.txt", sb.ToString());
+    //}
+
+    static long ConvertItem(IReadOnlyList<MapEntry> mapEntries, long sourceNumber)
     {
-        // there could well be overlapping ranges, it's hard to see with all the int64's.
-        // assume that the first entry that can satisfy the source is the one we want and immediately stop
+        // SingleOrDefault because the instructions don't tell us how to deal with an overlapping range, throw if we hit one
         var applicableRange = mapEntries
-            .FirstOrDefault(e => sourceNumber >= e.SourceRangeStart && sourceNumber < e.SourceRangeStart + e.RangeLength);
+            .SingleOrDefault(e => sourceNumber >= e.SourceRangeStart && sourceNumber < (e.SourceRangeStart + e.RangeLength));
 
         // Any source numbers that aren't mapped correspond to the same destination number
         if (applicableRange == null) return sourceNumber;
