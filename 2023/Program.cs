@@ -9,7 +9,11 @@
 //Day3.Part1(Day3.LoadInput());
 //Day3.Part2(Day3.LoadInput());
 
-// Day4.Part1(InputSource.Real);
+//Day4.Part1(InputSource.Example);
 
-Day5.Part1(InputSource.Real);
+//Day5.Part1(InputSource.Real);
+
+//Day6.Part1(InputSource.Real);
+
+Day6.Part2(InputSource.Real);
 

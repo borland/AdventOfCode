@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
-
-namespace aoc203;
+﻿namespace aoc203;
 
 class Day5
 {

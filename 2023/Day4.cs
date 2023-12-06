@@ -25,6 +25,11 @@ class Day4
         Console.WriteLine("Total = {0}", total);
     }
 
+    public static void Part2(InputSource inputSource)
+    {
+        
+    }
+
     static IEnumerable<ScratchCard> ParseScratchCards(string input)
     {
         foreach(var line in input.EnumerateLines())
@@ -58,7 +63,7 @@ class Day4
         }
     }
 
-    record ScratchCard(int Id, IReadOnlySet<int> WinningNumbers, IReadOnlyList<int> NumbersYouHave)
+    record ScratchCard(int Id, IReadOnlySet<int> WinningNumbers, IReadOnlyList<int> NumbersYouHave, ScratchCard? CopiedFrom = null)
     {
         public int PointValue()
         {
