@@ -50,7 +50,7 @@ class Day2
         int red = 0, green = 0, blue = 0;
         while (reader.HasDataRemaining())
         {
-            reader.ReadInt(out int n).MovePast(" ").Scan(char.IsAsciiLetterLower, out var color);
+            reader.ReadInt(out int n).MovePast(" ").ReadWord(out var color);
 
             switch (color)
             {
