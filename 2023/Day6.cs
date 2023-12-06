@@ -45,14 +45,16 @@ class Day6
 
         foreach(var race in races)
         {
-            var distances = Enumerable.Range(1, (int)race.TimeLimit - 2).Select(i => (i, DistanceTravelled(i, (int)race.TimeLimit - i)));
+            var waysToWin = Enumerable
+                .Range(1, (int)race.TimeLimit - 2)
+                .Select(i => DistanceTravelled(i, (int)race.TimeLimit - i))
+                .Count(x => x > race.TargetDistance);
 
-            var waysToWin = distances.Count(x => x.Item2 > race.TargetDistance);
             Console.WriteLine("{0} ways to win", waysToWin);
             allWaysToWin.Add(waysToWin);
         }
 
-        Console.WriteLine("{0} multipled all ways to win", allWaysToWin.Aggregate((a, b) => a * b));
+        Console.WriteLine("{0} multipled all ways to win\n", allWaysToWin.Aggregate((a, b) => a * b));
     }
 
     public static void Part2(InputSource inputSource)
@@ -74,7 +76,7 @@ class Day6
 
         sw.Stop();
 
-        Console.WriteLine("{0} ways to win; tool {1}ms", waysToWin, sw.ElapsedMilliseconds);
+        Console.WriteLine("{0} ways to win; took {1}ms\n", waysToWin, sw.ElapsedMilliseconds);
         allWaysToWin.Add(waysToWin);
 
     }
@@ -89,14 +91,14 @@ class Day6
         foreach(var line in input.EnumerateLines())
         {
             var reader = new DelimitedLineReader(line);
-            if(line.StartsWith("Time:"))
+            reader.ReadWord(out var type).MovePast(":");
+
+            if(type == "Time")
             {
-                reader.MovePast("Time: ");
                 while (reader.HasDataRemaining()) times.Add(reader.ReadLong());
             }
-            else if(line.StartsWith("Distance:"))
+            else if(type == "Distance")
             {
-                reader.MovePast("Distance: ");
                 while (reader.HasDataRemaining()) distances.Add(reader.ReadLong());
             }
         }
