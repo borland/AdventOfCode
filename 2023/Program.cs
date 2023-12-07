@@ -13,8 +13,13 @@
 
 //Day5.Part1(InputSource.Real);
 
-Day6.Part1(InputSource.Example);
-Day6.Part1(InputSource.Real);
-Day6.Part2(InputSource.Example);
-Day6.Part2(InputSource.Real);
+//Day6.Part1(InputSource.Example);
+//Day6.Part1(InputSource.Real);
+//Day6.Part2(InputSource.Example);
+//Day6.Part2(InputSource.Real);
 
+//Day7.Part1(InputSource.Example);
+//Day7.Part1(InputSource.Real);
+
+//Day7.Part2(InputSource.Example);
+Day7.Part2(InputSource.Real);

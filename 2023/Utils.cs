@@ -60,7 +60,8 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
         return line[startIdx..];
     }
 
-    public int Scan(Func<char, bool> predicate, out ReadOnlySpan<char> into)
+    // the Scan extension method is probably what you want instead of this
+    public int ScanReturningPosition(Func<char, bool> predicate, out ReadOnlySpan<char> into)
     {
         into = Scan(predicate);
         return CurrentPosition;
