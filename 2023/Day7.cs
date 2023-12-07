@@ -23,7 +23,7 @@ class Day7
     public static void Part1(InputSource inputSource)
     {
         var hands = ParseHands(LoadInput(inputSource))
-            .Select(x => new Hand(DetermineHandType(x.cards), x.cards, x.bid))
+            .Select(x => new Hand(DetermineHandTypeAlt(x.cards), x.cards, x.bid))
             .ToArray();
 
         var rankedHands = OrderAndAssignRanks(hands, new HandCardTypeComparer(RegularCardDefinitions));
@@ -33,10 +33,10 @@ class Day7
             var winnings = r.Rank * r.Bid;
             totalWinnings += winnings;
 
-            Console.WriteLine($"Rank {r.Rank} - Hand {r.Cards} which is {r.HandType} with bid {r.Bid}");
+            // Console.WriteLine($"Rank {r.Rank} - Hand {r.Cards} which is {r.HandType} with bid {r.Bid}");
         }
 
-        Console.WriteLine($"Total winnings = {totalWinnings}");
+        // Console.WriteLine($"Total winnings = {totalWinnings}");
     }
 
     public static void Part2(InputSource inputSource)
@@ -150,6 +150,52 @@ class Day7
     {
         var countPerCard = CardCountsByType(cards);
         return CardCountsByTypeToHandType(countPerCard);
+    }
+
+    static string HandRepresentation(string cards)
+    {
+        var orderedChars = cards.Order().ToArray();
+
+        var counts = new List<char>();
+
+        // this builds an unsorted list of unique character counts into "counts"
+        // e.g. 233QK will result in 1211
+        var prevChar = orderedChars[0];
+        var currentCharCount = '1';
+        for (int i = 1; i < orderedChars.Length; i++)
+        {
+            if (orderedChars[i] == prevChar)
+            {
+                currentCharCount++;
+            }
+            else // a different character
+            {
+                counts.Add(currentCharCount);
+                prevChar = orderedChars[i];
+                currentCharCount = '1';
+            }
+        }
+        // don't forget the last element
+        counts.Add(currentCharCount);
+
+        // sort it so the biggest number is first e.g. 2111
+        return new string(counts.OrderDescending().ToArray());
+    }
+
+    // try a different, perhaps more intuitive way of determining hand type
+    static HandType DetermineHandTypeAlt(string cards)
+    {
+        return HandRepresentation(cards) switch
+        {
+            "5" => HandType.FiveOfAKind,
+            "41" => HandType.FourOfAKind,
+            "32" or "23" => HandType.FullHouse,
+            "311" => HandType.ThreeOfAKind,
+            "221" => HandType.TwoPair,
+            "2111" => HandType.OnePair,
+            "11111" => HandType.HighCard,
+            _ => throw new InvalidOperationException($"Unhandled representation {countRepresentation} for cards {cards}")
+        };
     }
 
     static HandType DetermineHandTypeUsingJokers(string cards)
