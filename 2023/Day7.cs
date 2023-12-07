@@ -36,7 +36,7 @@ class Day7
             // Console.WriteLine($"Rank {r.Rank} - Hand {r.Cards} which is {r.HandType} with bid {r.Bid}");
         }
 
-        // Console.WriteLine($"Total winnings = {totalWinnings}");
+        Console.WriteLine($"Total winnings = {totalWinnings}");
     }
 
     public static void Part2(InputSource inputSource)
@@ -189,12 +189,12 @@ class Day7
         {
             "5" => HandType.FiveOfAKind,
             "41" => HandType.FourOfAKind,
-            "32" or "23" => HandType.FullHouse,
+            "32" => HandType.FullHouse,
             "311" => HandType.ThreeOfAKind,
             "221" => HandType.TwoPair,
             "2111" => HandType.OnePair,
             "11111" => HandType.HighCard,
-            _ => throw new InvalidOperationException($"Unhandled representation {countRepresentation} for cards {cards}")
+            _ => throw new InvalidOperationException($"Unhandled representation for cards {cards}")
         };
     }
 
