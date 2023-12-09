@@ -32,9 +32,6 @@ using System.Diagnostics;
 //Day8.Part2(InputSource.Real);
 
 //Day9.Part1(InputSource.Real);
-//Console.WriteLine("--------");
 //Day9.Part1(InputSource.Example);
-
-Day9.Part2(InputSource.Real);
-Console.WriteLine("--------");
-Day9.Part2(InputSource.Example);
+//Day9.Part2(InputSource.Real);
+//Day9.Part2(InputSource.Example);

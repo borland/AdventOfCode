@@ -15,26 +15,28 @@ internal class Day9
         _ => throw new ArgumentException($"Can't handle inputSource {inputSource}")
     };
 
+    // Note: this is a naturally recursive problem, and would be shorter that way, but I'm deliberately choosing to do it iteratively 
+    // because the concept that every recursive solution can be written iteratively happens to be on my mind for some reason.
+    // And also because I find it fun to optimize for perf/memory here; An iterative solution only hold the last element of each sequence in memory
+    // whereas a recursive solution would implicitly keep the entire sequence in memory
     public static void Part1(InputSource inputSource)
     {
         var sequences = ParseSequences(LoadInput(inputSource));
     
         long totalCarries = 0;
+        var lastElements = new Stack<long>(); // memory-perf golfing: Don't need to allocate a new stack each time
         foreach (var s in sequences)
         {
-            //Console.WriteLine(string.Join(' ', s.Select(l => l.ToString())));
-
             var source = s;
-            var sources = new Stack<long[]>();
+            lastElements.Clear();
             while (true)
             {
-                sources.Push(source);
+                lastElements.Push(source[^1]);
                 var deltas = new long[source.Length - 1];
                 for (int i = 0; i < deltas.Length; i++)
                 {
                     deltas[i] = source[i + 1] - source[i];
                 }
-                //Console.WriteLine(string.Join(' ', deltas.Select(l => l.ToString())));
 
                 if (deltas.Length == 0) throw new InvalidOperationException("Can't determine sequence");
 
@@ -45,10 +47,9 @@ internal class Day9
             // now walk back up the stack
             long delta = 0, carry = 0;
             long[]? lastSource = null;
-            while (sources.TryPop(out source))
+            while (lastElements.TryPop(out var lastElement))
             {
-                lastSource = source;
-                carry = source[^1] + delta;
+                carry = lastElement + delta;
                 //Console.WriteLine("{0} delta:{1} => {2}", string.Join(' ', source.Select(l => l.ToString())), delta, carry);
                 delta = carry;
             }
@@ -66,15 +67,15 @@ internal class Day9
         var sequences = ParseSequences(LoadInput(inputSource));
 
         long totalCarries = 0;
+        var firstElements = new Stack<long>(); // memory-perf golfing: Don't need to allocate a new stack each time
         foreach (var s in sequences)
         {
             //Console.WriteLine(string.Join(' ', s.Select(l => l.ToString())));
 
             var source = s;
-            var sources = new Stack<long[]>();
             while (true)
             {
-                sources.Push(source);
+                firstElements.Push(source[0]);
                 var deltas = new long[source.Length - 1];
                 for (int i = 0; i < deltas.Length; i++)
                 {
@@ -91,18 +92,15 @@ internal class Day9
             // now walk back up the stack
             long delta = 0, carry = 0;
             long[]? lastSource = null;
-            while (sources.TryPop(out source))
+            while (firstElements.TryPop(out var firstElement))
             {
                 lastSource = source;
-                carry = source[0] - delta;
+                carry = firstElement - delta;
                 //Console.WriteLine("*{2}* {0} delta:{1}", string.Join(' ', source.Select(l => l.ToString())), delta, carry);
                 delta = carry;
             }
 
-            if (lastSource != null) Console.WriteLine("*{1}* {0}", string.Join(' ', lastSource.Select(l => l.ToString())), carry);
-
             totalCarries += carry;
-            Console.WriteLine();
         }
         Console.WriteLine("Total carries = {0}", totalCarries);
     }
