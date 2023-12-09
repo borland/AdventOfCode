@@ -18,15 +18,15 @@ internal class Day9
     public static void Part1(InputSource inputSource)
     {
         var sequences = ParseSequences(LoadInput(inputSource));
+    
         long totalCarries = 0;
-        var sources = new Stack<long[]>();
         foreach (var s in sequences)
         {
-            Console.WriteLine(string.Join(' ', s.Select(l => l.ToString())));
+            //Console.WriteLine(string.Join(' ', s.Select(l => l.ToString())));
 
             var source = s;
-            sources.Clear();
-            while(true)
+            var sources = new Stack<long[]>();
+            while (true)
             {
                 sources.Push(source);
                 var deltas = new long[source.Length - 1];
@@ -34,22 +34,72 @@ internal class Day9
                 {
                     deltas[i] = source[i + 1] - source[i];
                 }
-                Console.WriteLine(string.Join(' ', deltas.Select(l => l.ToString())));
+                //Console.WriteLine(string.Join(' ', deltas.Select(l => l.ToString())));
 
                 if (deltas.Length == 0) throw new InvalidOperationException("Can't determine sequence");
 
-                if (deltas.Sum() == 0) break;
+                if (deltas.All(l => l == 0)) break;
                 source = deltas;
             }
 
             // now walk back up the stack
             long delta = 0, carry = 0;
-            while(sources.TryPop(out source))
+            long[]? lastSource = null;
+            while (sources.TryPop(out source))
             {
+                lastSource = source;
                 carry = source[^1] + delta;
-                Console.WriteLine("{0} delta:{1} => {2}", string.Join(' ', source.Select(l => l.ToString())), delta, carry);
+                //Console.WriteLine("{0} delta:{1} => {2}", string.Join(' ', source.Select(l => l.ToString())), delta, carry);
                 delta = carry;
             }
+
+            if (lastSource != null) Console.WriteLine("{0} *{1}*", string.Join(' ', lastSource.Select(l => l.ToString())), carry);
+
+            totalCarries += carry;
+            //Console.WriteLine();
+        }
+        Console.WriteLine("Total carries = {0}", totalCarries);
+    }
+
+    public static void Part2(InputSource inputSource)
+    {
+        var sequences = ParseSequences(LoadInput(inputSource));
+
+        long totalCarries = 0;
+        foreach (var s in sequences)
+        {
+            //Console.WriteLine(string.Join(' ', s.Select(l => l.ToString())));
+
+            var source = s;
+            var sources = new Stack<long[]>();
+            while (true)
+            {
+                sources.Push(source);
+                var deltas = new long[source.Length - 1];
+                for (int i = 0; i < deltas.Length; i++)
+                {
+                    deltas[i] = source[i + 1] - source[i];
+                }
+                //Console.WriteLine(string.Join(' ', deltas.Select(l => l.ToString())));
+
+                if (deltas.Length == 0) throw new InvalidOperationException("Can't determine sequence");
+
+                if (deltas.All(l => l == 0)) break;
+                source = deltas;
+            }
+
+            // now walk back up the stack
+            long delta = 0, carry = 0;
+            long[]? lastSource = null;
+            while (sources.TryPop(out source))
+            {
+                lastSource = source;
+                carry = source[0] - delta;
+                //Console.WriteLine("*{2}* {0} delta:{1}", string.Join(' ', source.Select(l => l.ToString())), delta, carry);
+                delta = carry;
+            }
+
+            if (lastSource != null) Console.WriteLine("*{1}* {0}", string.Join(' ', lastSource.Select(l => l.ToString())), carry);
 
             totalCarries += carry;
             Console.WriteLine();
