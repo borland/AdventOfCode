@@ -83,6 +83,20 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
         return long.Parse(span);
     }
 
+    // reads a signed long integer, skipping past any leading whitespace
+    public long ReadSignedLong()
+    {
+        Scan(char.IsWhiteSpace); // skip past
+
+        bool isNegative = PeekChar() == '-';
+        if (isNegative) ReadChar();
+
+        var span = Scan(char.IsAsciiDigit);
+        var num = long.Parse(span);
+
+        return isNegative ? -num : num;
+    }
+
     // reads a long integer, skipping past any leading whitespace
     public string ReadWord()
     {
@@ -134,6 +148,12 @@ static class DelimitedLineReaderExtensions
     public static ref DelimitedLineReader ReadLong(this ref DelimitedLineReader reader, out long into)
     {
         into = reader.ReadLong();
+        return ref reader;
+    }
+
+    public static ref DelimitedLineReader ReadSignedLong(this ref DelimitedLineReader reader, out long into)
+    {
+        into = reader.ReadSignedLong();
         return ref reader;
     }
 

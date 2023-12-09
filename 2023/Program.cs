@@ -28,5 +28,8 @@ using System.Diagnostics;
 //Day8.Part1(InputSource.Example);
 //Day8.Part1(InputSource.Real);
 
-Day8.Part2(InputSource.Example);
-Day8.Part2(InputSource.Real);
+//Day8.Part2(InputSource.Example);
+//Day8.Part2(InputSource.Real);
+
+//Day9.Part1(InputSource.Example);
+Day9.Part1(InputSource.Real);
