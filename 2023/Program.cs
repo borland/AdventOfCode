@@ -37,3 +37,4 @@ using System.Diagnostics;
 //Day9.Part2(InputSource.Example);
 
 Day10.Part1(InputSource.Example);
+//Day10.Part1(InputSource.Real);

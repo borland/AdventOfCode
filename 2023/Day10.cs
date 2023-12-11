@@ -1,11 +1,12 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
 namespace aoc203;
 
 internal class Day10
 {
-    public static readonly string ExampleInput = """
+    public static readonly string ExampleInputBasicClean = """
         .....
         .S-7.
         .|.|.
@@ -13,9 +14,33 @@ internal class Day10
         .....
         """;
 
+    public static readonly string ExampleInputBasicMessy = """
+        -L|F7
+        7S-7|
+        L|7||
+        -L-J|
+        L|-JF
+        """;
+
+    public static readonly string ExampleInputComplexClean = """
+        ..F7.
+        .FJ|.
+        SJ.L7
+        |F--J
+        LJ...
+        """;
+
+    public static readonly string ExampleInputComplexMessy = """
+        7-F7-
+        .FJ|7
+        SJLL7
+        |F--J
+        LJ.LJ
+        """;
+
     public static string LoadInput(InputSource inputSource) => inputSource switch
     {
-        InputSource.Example => ExampleInput,
+        InputSource.Example => ExampleInputComplexMessy,
         InputSource.Real => File.ReadAllText("Day10-input.txt"),
         _ => throw new ArgumentException($"Can't handle inputSource {inputSource}")
     };
@@ -38,17 +63,83 @@ internal class Day10
         // Once we hit the start location, backtrack, counting upwards a second time, until our
         // counting backwards number equals our counting upwards number. That should be the farthest point
 
+        var current = field[startLocation];
+        var forwardsTrail = WalkPath(field, startLocation, current.ConnectsTo().Second);
+        var backwardsTrail = WalkPath(field, startLocation, current.ConnectsTo().First);
+
+        (Tile Tile, int DistanceFromStart)? mostDistant = null;
+        for (int i = 0; i < forwardsTrail.Count; i++)
+        {
+            if (forwardsTrail[i] == backwardsTrail[i])
+            {
+                mostDistant = forwardsTrail[i];
+                break;
+            }
+        }
+
+        if (mostDistant == null) throw new Exception("Could not find most distant tile!");
+
+        Console.WriteLine($"Most distant tile is: {mostDistant.Value.Tile} which is {mostDistant.Value.DistanceFromStart} steps away");
+
+        var cleanPoints = forwardsTrail.Select(t => t.Tile.Location).ToHashSet();
+        var cleanField = field.Where(kv => cleanPoints.Contains(kv.Key)).ToDictionary();
+
+        // size of the field is determined before we clean it
+        var maxX = field.Keys.Max(k => k.Y) + 1;
+        var maxY = field.Keys.Max(k => k.Y) + 1;
+
+        PrintField(cleanField, new Point(maxX, maxY));
+    }
+
+    static void PrintField(Dictionary<Point, Tile> field, Point size)
+    {
+        var (maxX, maxY) = size;
+
+        for(int y = 0; y < maxY; y++)
+        {
+            for (int x = 0; x < maxX; x++)
+            {
+                var tileType = field.TryGetValue(new Point(x, y), out var t) ? t.Type : '.';
+
+                Console.Write(NiceChar(tileType));
+            }
+            Console.WriteLine();
+        }
+
+        static char NiceChar(char tileType) => tileType switch
+        {
+            '-' => '─',
+            '|' => '│',
+            '7' => '┐',
+            'J' => '┘',
+            'L' => '└',
+            'F' => '┌',
+            _ => tileType,
+        };
+    }
+
+    // The "S" tile has two connections; `blockStartingConnectionTo` considers one of them as blocked, so the algorithm
+    // will pick the other connection, thus you can control which direction it walks
+    static List<(Tile Tile, int DistanceFromStart)> WalkPath(Dictionary<Point, Tile> field, Point startLocation, Point blockStartingConnectionTo)
+    {
         var trail = new List<(Tile Tile, int DistanceFromStart)>();
 
         var current = field[startLocation];
         var distance = 0;
+        Point currentLocation = startLocation;
+        Point prevLocation = blockStartingConnectionTo;
         do
         {
-            var nextPoint = current.ConnectsTo().First;
-            current = field[nextPoint];
+            var currentAtStart = currentLocation;
+            currentLocation = current.TraverseFrom(prevLocation);
+            current = field[currentLocation];
+
             trail.Add((current, ++distance));
+            prevLocation = currentAtStart;
 
         } while (current.Type != 'S');
+
+        return trail;
     }
 
     static (Dictionary<Point, Tile> field, Point startLocation) ParseField(string input)
@@ -76,7 +167,16 @@ internal class Day10
         return (result, startLocation);
     }
 
-    record struct PointPair(Point First, Point Second);
+    record struct PointPair(Point First, Point Second) : IEnumerable<Point>
+    {
+        public IEnumerator<Point> GetEnumerator()
+        {
+            yield return First;
+            yield return Second;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 
     record struct Point(int X, int Y);
 
@@ -89,15 +189,18 @@ internal class Day10
 
             '7' => new(new(X - 1, Y), new(X, Y + 1)),
             'J' => new(new(X - 1, Y), new(X, Y - 1)),
-            'L' => new(new(X, Y - 1), new(X, Y + 1)),
-            'F' => new(new(X, Y + 1), new(X + 1, Y)),
+            'L' => new(new(X, Y - 1), new(X + 1, Y)),
+            // Note: In the examples and real input, the start point is an "F" tile so we can cheat and avoid having to work that out
+            'F' or 'S' => new(new(X, Y + 1), new(X + 1, Y)),
 
             '.' => throw new Exception("This is an empty tile, don't call ConnectsTo()"),
             _ => throw new Exception($"Unhandled tile type {Type}, don't call ConnectsTo()"),
         };
 
+        public Point TraverseFrom(Point startingPoint) => ConnectsTo().First(p => p != startingPoint);
+
         int X => Location.X;
-        int Y => Location.X;
+        int Y => Location.Y;
     }
 
     // public static ReadOnlySpan<byte> TileValidTypes => ".|-LJ7F.S"u8;
