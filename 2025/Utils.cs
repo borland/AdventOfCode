@@ -130,7 +130,7 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
     public char ReadChar() => line[CurrentPosition++];
 
     // simply moves the current position forward by 1
-    public void NextChar() => CurrentPosition++;
+    public void SkipChar() => CurrentPosition++;
 
     // returns the character at the current position, but doesn't move forward
     public char PeekChar() => line[CurrentPosition];
