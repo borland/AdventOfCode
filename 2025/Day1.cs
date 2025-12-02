@@ -1,6 +1,6 @@
 namespace aoc25;
 
-public class Day1
+public static class Day1
 {
     public static readonly string ExampleInput =
         """
