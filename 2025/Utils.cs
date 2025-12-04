@@ -20,7 +20,7 @@ static class Utils
     // https://github.com/dotnet/roslyn/issues/75569#issuecomment-2429424385
     public static DelimitedLineReaderEnumerable EnumerateDelimitedLines(this string str) => new(str.EnumerateLines());
 
-    public readonly struct DelimitedLineReaderEnumerable(IEnumerable<string> source) : IEnumerable<DelimitedLineReader>
+    public readonly ref struct DelimitedLineReaderEnumerable(IEnumerable<string> source) : IEnumerable<DelimitedLineReader>
     {
         public Enumerator GetEnumerator() => new(source.GetEnumerator());
         IEnumerator<DelimitedLineReader> IEnumerable<DelimitedLineReader>.GetEnumerator() => new Enumerator(source.GetEnumerator());

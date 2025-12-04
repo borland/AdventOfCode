@@ -26,10 +26,9 @@ public static class Day1
         var zeroClickCount = 0;
         Console.WriteLine("The dial starts by pointing at {0}", dialPosition);
 
-        foreach (var line in File.ReadAllLines("Day1Input.txt"))
-        //foreach (var line in ExampleInput.EnumerateLines())
+        //foreach (var line in File.ReadAllLines("Day1Input.txt"))
+        foreach (var reader in ExampleInput.EnumerateDelimitedLines())
         {
-            var reader = new DelimitedLineReader(line);
             var leftOrRight = reader.ReadChar();
             var originalAmount = reader.ReadInt();
             var amount = originalAmount;

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace aoc25;
 
 public static class Day2
@@ -7,6 +9,8 @@ public static class Day2
 
     public static void Run()
     {
+        var start = Stopwatch.GetTimestamp();
+        
         var reader = new DelimitedLineReader(FullInput);
         long sumOfInvalidIds = 0;
         while (true)
@@ -30,6 +34,7 @@ public static class Day2
         }
 
         Console.WriteLine("Sum of invalid IDs = {0}", sumOfInvalidIds);
+        Console.WriteLine("Completed in {0}ms", Stopwatch.GetElapsedTime(start).TotalMilliseconds);
     }
 
     static IEnumerable<long> FindInvalidIds(long rangeLower, long rangeUpper)
@@ -38,7 +43,7 @@ public static class Day2
         for (var l = rangeLower; l <= rangeUpper; l++)
         {
             var str = l.ToString();
-            if (!IdIsValidPart2(str)) yield return l;
+            if (!IdIsValidPart1(str)) yield return l;
         }
     }
     
