@@ -5,6 +5,7 @@ namespace aoc25;
 
 public static class Day4
 {
+#pragma warning disable CS0414 // Field is assigned but its value is never used
     private static readonly string ExampleInput =
         """
         ..@@.@@@@.
@@ -18,12 +19,50 @@ public static class Day4
         .@@@@@@@@.
         @.@.@@@.@.
         """;
+#pragma warning restore CS0414 // Field is assigned but its value is never used
 
     public static void Run()
     {
         //var grid = Grid.Parse(ExampleInput.EnumerateLines());
         var grid = Grid.Parse(File.ReadLines("Day4Input.txt"));
-        
+
+        int totalRollsRemoved = 0;
+        while (true)
+        {
+            var nextGrid = Grid.Create(numColumns: grid.Columns, numRows: grid.Rows, fillWith: '.');
+
+            var reachablePositions = 0;
+            foreach (var point in grid)
+            {
+                nextGrid[point] = grid[point];
+
+                if (grid[point] == '@')
+                {
+                    var adjacentRollCount = grid.CountAdjacent(point, '@');
+                    if (adjacentRollCount < 4)
+                    {
+                        nextGrid[point] = '.'; // we removed the roll!
+                        reachablePositions++;
+                    }
+                }
+            }
+
+            Console.WriteLine("{0} rolls were removed in this iteration", reachablePositions);
+            if (reachablePositions == 0) break; // can't remove any more rolls, we're done
+            totalRollsRemoved += reachablePositions;
+            grid = nextGrid;
+        }
+
+        Console.WriteLine("A total of {0} rolls of paper were removed", totalRollsRemoved);
+
+        // nextGrid.WriteToConsole();
+    }
+
+    public static void RunPart1()
+    {
+        //var grid = Grid.Parse(ExampleInput.EnumerateLines());
+        var grid = Grid.Parse(File.ReadLines("Day4Input.txt"));
+
         // for printing, so I can see where I've gone wrong
         var outputGrid = Grid.Create(numColumns: grid.Columns, numRows: grid.Rows, fillWith: '.');
 
@@ -31,8 +70,6 @@ public static class Day4
         foreach (var point in grid)
         {
             outputGrid[point] = grid[point];
-            
-            if (grid[point] == '.') continue;
 
             if (grid[point] == '@')
             {
@@ -50,7 +87,7 @@ public static class Day4
     }
 
     readonly record struct Point(int X, int Y);
-    
+
     class Grid(char[] buffer, int numColumns, int numRows) : IEnumerable<Point>
     {
         public static Grid Create(int numColumns, int numRows, char fillWith)
@@ -59,7 +96,7 @@ public static class Day4
             Array.Fill(buffer, fillWith);
             return new Grid(buffer, numColumns, numRows);
         }
-        
+
         public static Grid Parse(IEnumerable<string> lines)
         {
             var numColumns = 0;
@@ -79,7 +116,7 @@ public static class Day4
 
         public int Columns => numColumns;
         public int Rows => numRows;
-        
+
         public char this[Point point]
         {
             get => buffer[point.Y * numRows + point.X];
@@ -98,20 +135,20 @@ public static class Day4
             {
                 if (pos.X > 0) candidates[i++] = new(pos.X - 1, yUp);
                 candidates[i++] = new(pos.X, yUp);
-                if (pos.X < numColumns-1) candidates[i++] = new(pos.X + 1, yUp);
+                if (pos.X < numColumns - 1) candidates[i++] = new(pos.X + 1, yUp);
             }
 
             if (pos.X > 0) candidates[i++] = new(pos.X - 1, pos.Y);
             // don't include pos itself, which would be here
-            if (pos.X < numColumns-1) candidates[i++] = new(pos.X + 1, pos.Y);
-            
+            if (pos.X < numColumns - 1) candidates[i++] = new(pos.X + 1, pos.Y);
+
             if (yDown < numColumns)
             {
                 if (pos.X > 0) candidates[i++] = new(pos.X - 1, yDown);
                 candidates[i++] = new(pos.X, yDown);
-                if (pos.X < numColumns-1) candidates[i++] = new(pos.X + 1, yDown);
+                if (pos.X < numColumns - 1) candidates[i++] = new(pos.X + 1, yDown);
             }
-            
+
             int count = 0;
             foreach (var candidate in candidates[..i])
             {
@@ -129,6 +166,7 @@ public static class Day4
                 {
                     Console.Write(buffer[y * numColumns + x]);
                 }
+
                 Console.WriteLine();
             }
         }
