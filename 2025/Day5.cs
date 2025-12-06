@@ -66,12 +66,11 @@ public static class Day5
         Console.WriteLine("{0} of the ingredient IDs are fresh", freshCount);
         
         // Part 2. Collapse the ranges and sum their lengths.
-        
-        Console.WriteLine("Ranges after merging:");
+        // Console.WriteLine("Ranges after merging:");
         long totalRangeLength = 0;
         foreach (var range in mergedRanges)
         {
-            Console.WriteLine(range);
+            //Console.WriteLine(range);
             totalRangeLength += range.Length;
         }
         Console.WriteLine("{0} ingredient IDs are considered to be fresh", totalRangeLength);
@@ -92,7 +91,7 @@ public static class Day5
                 var b = rangesSortedByStart[i+1];
                 if (a.OverlapsInclusive(b))
                 {
-                    Console.WriteLine("Range {0} overlaps {1}", a, b);
+                    // Console.WriteLine("Range {0} overlaps {1}", a, b);
                     didMerge = true;
                     rangesSortedByStart.RemoveAt(i+1);
                     rangesSortedByStart[i] = a.Union(b);
@@ -100,7 +99,7 @@ public static class Day5
                     break;
                     // merge them and restart the loop
                 }
-                Console.WriteLine("Range {0} doesn't overlap {1}", a, b);
+                // Console.WriteLine("Range {0} doesn't overlap {1}", a, b);
             }
             // we didn't manage to merge anything, must have reached the end
             if (!didMerge) break;
