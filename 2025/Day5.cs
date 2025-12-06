@@ -55,17 +55,31 @@ public static class Day5
         }
 
         // Part 1
+        var mergedRanges = MergeRanges(freshRanges);
         int freshCount = 0;
         foreach (var ingredientId in ingredientIds)
         {
-            var isFresh = (freshRanges.Any(r => r.ContainsInclusive(ingredientId)));
+            var isFresh = (mergedRanges.Any(r => r.ContainsInclusive(ingredientId)));
             if (isFresh) freshCount++;
         }
 
         Console.WriteLine("{0} of the ingredient IDs are fresh", freshCount);
         
         // Part 2. Collapse the ranges and sum their lengths.
-        var rangesSortedByStart = new List<IngredientRange>(freshRanges);
+        
+        Console.WriteLine("Ranges after merging:");
+        long totalRangeLength = 0;
+        foreach (var range in mergedRanges)
+        {
+            Console.WriteLine(range);
+            totalRangeLength += range.Length;
+        }
+        Console.WriteLine("{0} ingredient IDs are considered to be fresh", totalRangeLength);
+    }
+
+    static List<IngredientRange> MergeRanges(IEnumerable<IngredientRange> inputRanges)
+    {
+        var rangesSortedByStart = new List<IngredientRange>(inputRanges);
         rangesSortedByStart.Sort((a, b) => a.Lower.CompareTo(b.Lower));
 
         int startPos = 0;
@@ -92,14 +106,7 @@ public static class Day5
             if (!didMerge) break;
         }
 
-        Console.WriteLine("Ranges after merging:");
-        long totalRangeLength = 0;
-        foreach (var range in rangesSortedByStart)
-        {
-            Console.WriteLine(range);
-            totalRangeLength += range.Length;
-        }
-        Console.WriteLine("{0} ingredint IDs are considered to be fresh", totalRangeLength);
+        return rangesSortedByStart;
     }
 }
 
