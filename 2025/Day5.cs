@@ -54,26 +54,63 @@ public static class Day5
             }
         }
 
+        // Part 1
         int freshCount = 0;
         foreach (var ingredientId in ingredientIds)
         {
             var isFresh = (freshRanges.Any(r => r.ContainsInclusive(ingredientId)));
-            if (isFresh)
-            {
-                freshCount++;
-                Console.WriteLine("Ingredient ID {0} is fresh", ingredientId);    
-            }
-            else
-            {
-                Console.WriteLine("Ingredient ID {0} spoiled", ingredientId);
-            }
+            if (isFresh) freshCount++;
         }
 
         Console.WriteLine("{0} of the ingredient IDs are fresh", freshCount);
+        
+        // Part 2. Collapse the ranges and sum their lengths.
+        var rangesSortedByStart = new List<IngredientRange>(freshRanges);
+        rangesSortedByStart.Sort((a, b) => a.Lower.CompareTo(b.Lower));
+
+        int startPos = 0;
+        while (true)
+        {
+            bool didMerge = false;
+            for (int i = startPos; i < rangesSortedByStart.Count-1; i++)
+            {
+                var a = rangesSortedByStart[i];
+                var b = rangesSortedByStart[i+1];
+                if (a.OverlapsInclusive(b))
+                {
+                    Console.WriteLine("Range {0} overlaps {1}", a, b);
+                    didMerge = true;
+                    rangesSortedByStart.RemoveAt(i+1);
+                    rangesSortedByStart[i] = a.Union(b);
+                    startPos = i; // optimization. If we have non-mergeable stuff at the start it's going to stay non-mergeable so we can skip past it on subsequent iterations
+                    break;
+                    // merge them and restart the loop
+                }
+                Console.WriteLine("Range {0} doesn't overlap {1}", a, b);
+            }
+            // we didn't manage to merge anything, must have reached the end
+            if (!didMerge) break;
+        }
+
+        Console.WriteLine("Ranges after merging:");
+        long totalRangeLength = 0;
+        foreach (var range in rangesSortedByStart)
+        {
+            Console.WriteLine(range);
+            totalRangeLength += range.Length;
+        }
+        Console.WriteLine("{0} ingredint IDs are considered to be fresh", totalRangeLength);
     }
 }
 
 readonly record struct IngredientRange(long Lower, long Upper)
 {
     public bool ContainsInclusive(long ingredientId) => ingredientId >= Lower && ingredientId <= Upper;
+    public bool OverlapsInclusive(IngredientRange other) => (Upper >= other.Lower && Lower <= Upper) || (Lower <= other.Upper && Upper >= other.Lower);
+    
+    public override string ToString() => $"{Lower}-{Upper}";
+    
+    public long Length => Upper + 1 - Lower; // 3-5 has a length of 3 as it includes 3 ID's 
+    
+    public IngredientRange Union(IngredientRange other) => new(Math.Min(Lower, other.Lower), Math.Max(Upper, other.Upper));
 }
