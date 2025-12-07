@@ -45,7 +45,7 @@ public static class Day5
                     }
 
                     var lower = reader.ReadLong();
-                    if (reader.ReadChar() != '-') throw new InvalidOperationException("Expected hyphen");
+                    if (reader.ReadExactChar() != '-') throw new InvalidOperationException("Expected hyphen");
                     var upper = reader.ReadLong();
                     freshRanges.Add(new IngredientRange(lower, upper));
                     break;

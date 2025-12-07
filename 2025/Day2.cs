@@ -18,7 +18,7 @@ public static class Day2
         while (true)
         {
             var rangeLower = reader.ReadLong();
-            if (reader.ReadChar() != '-') throw new Exception("Invalid input, expected '-'");
+            if (reader.ReadExactChar() != '-') throw new Exception("Invalid input, expected '-'");
             var rangeUpper = reader.ReadLong();
 
             var invalidIds = FindInvalidIds(rangeLower, rangeUpper).ToArray();
@@ -32,7 +32,7 @@ public static class Day2
 
             if (!reader.HasDataRemaining()) break; // the last ID doesn't have a trailing comma
 
-            if (reader.ReadChar() != ',') throw new Exception("Invalid input, expected ','");
+            if (reader.ReadExactChar() != ',') throw new Exception("Invalid input, expected ','");
         }
 
         Console.WriteLine("Sum of invalid IDs = {0}", sumOfInvalidIds);

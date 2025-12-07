@@ -108,7 +108,7 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
         Scan(char.IsWhiteSpace); // skip past
 
         bool isNegative = PeekChar() == '-';
-        if (isNegative) ReadChar();
+        if (isNegative) ReadExactChar();
 
         var span = Scan(char.IsAsciiDigit);
         var num = long.Parse(span);
@@ -123,11 +123,32 @@ ref struct DelimitedLineReader(ReadOnlySpan<char> line)
         var span = Scan(char.IsAsciiLetter);
         return span.ToString();
     }
+    
+    // skips any leading whitespace, returns the character at that current position, then moves forward by 1.
+    public char ReadChar()
+    {
+        Scan(char.IsWhiteSpace); // skip past
+        return ReadExactChar();
+    }
 
+    // returns true if the Current Position is not at the end of the line.
     public readonly bool HasDataRemaining() => CurrentPosition < line.Length;
 
-    // returns the character at the current position, then moves forward by 1
-    public char ReadChar() => line[CurrentPosition++];
+    // returns true if the Current Position is not at the end of the line, *and* there is no non-whitespace character after the current position.
+    // this could be expensive if there are long runs of whitespace
+    public readonly bool HasNonWhitespaceDataRemaining()
+    {
+        if (!HasDataRemaining()) return false;
+        for (int pos = CurrentPosition; pos < line.Length; pos++)
+        {
+            if (!char.IsWhiteSpace(line[pos])) return true; // we found something that wasn't whitespace
+        }
+        return false;
+    }
+
+    // returns the character at the current position, then moves forward by 1.
+    // does not skip past leading whitespace.
+    public char ReadExactChar() => line[CurrentPosition++];
 
     // simply moves the current position forward by 1
     public void SkipChar() => CurrentPosition++;

@@ -31,7 +31,7 @@ public static class Day1
         //foreach (var line in File.ReadAllLines("Day1Input.txt"))
         foreach (var reader in ExampleInput.EnumerateDelimitedLines())
         {
-            var leftOrRight = reader.ReadChar();
+            var leftOrRight = reader.ReadExactChar();
             var originalAmount = reader.ReadInt();
             var amount = originalAmount;
             
