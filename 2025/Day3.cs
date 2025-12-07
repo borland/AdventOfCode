@@ -2,7 +2,9 @@ namespace aoc25;
 
 public static class Day3
 {
+#pragma warning disable CS0414 // Field is assigned but its value is never used
     private static readonly string ExampleInput =
+#pragma warning restore CS0414 // Field is assigned but its value is never used
         """
         987654321111111
         811111111111119

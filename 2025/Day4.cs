@@ -7,6 +7,7 @@ public static class Day4
 {
 #pragma warning disable CS0414 // Field is assigned but its value is never used
     private static readonly string ExampleInput =
+#pragma warning restore CS0414 // Field is assigned but its value is never used
         """
         ..@@.@@@@.
         @@@.@.@.@@
@@ -19,7 +20,6 @@ public static class Day4
         .@@@@@@@@.
         @.@.@@@.@.
         """;
-#pragma warning restore CS0414 // Field is assigned but its value is never used
 
     public static void Run()
     {
