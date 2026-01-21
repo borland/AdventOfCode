@@ -49,10 +49,10 @@ public static class Day6
         }
     }
 
-    public static void Run()
+    public static void RunPart1()
     {
         // Parse
-        var problems = ParseProblems(ExampleInput.EnumerateLines());
+        var problems = ParseProblemsPart1(ExampleInput.EnumerateLines());
 
         // now action them all
         long grandTotal = 0;
@@ -65,45 +65,88 @@ public static class Day6
 
         Console.WriteLine("Part 1 Grand total is {0}", grandTotal);
         Console.WriteLine();
-        
-        // Part 2: ridiculous BS
-        // TODO stop. I can't just take the `long` values I parsed before; whitespace is significant now, I need to go back and re-parse the file. Sigh.
-        foreach (var problem in problems.Select(p => ToCephalopodForm(p)))
+    }
+
+    // part 2
+    public static void Run()
+    {
+        // Parse
+        var problems = ParseProblemsPart2(ExampleInput.EnumerateLines());
+
+        // now action them all
+        long grandTotal = 0;
+        foreach (var problem in problems)
         {
-            problem.PrintWithResult();
+            // problem.PrintWithResult();
             var result = problem.Compute();
             grandTotal += result;
         }
 
         Console.WriteLine("Part 2 Grand total is {0}", grandTotal);
+        Console.WriteLine();
     }
 
-    // This is wrong. whitespace is significant now, I need to go back and re-parse the file. Sigh.
-    static MathProblem ToCephalopodForm(MathProblem problem)
+    static List<MathProblem> ParseProblemsPart2(IEnumerable<string> lines)
     {
-        var numbersAsListsOfChar = problem.Items.Select(i => i.ToString().AsEnumerable().ToList()).ToList();
-        var maxLength = numbersAsListsOfChar.Max(s => s.Count);
-
-        // now walk backwards, combining all the chars
-        var convertedProblem = new MathProblem { Operation = problem.Operation };
-        for (int i = maxLength; i >= 0; i--)
+        // because the column boundaries could be anywhere, and we can't find them correctly without
+        // seeing the entire dataset, we either have to read the whole input twice, or buffer it all in-memory
+        // The input text file is small, let's just buffer.
+        var allLines = lines.ToArray();
+        List<int> columnStartPositions = FindColumnBoundaryPositions(allLines);
+        var splitLines = allLines.Select(line => SplitAtBoundaries(line, columnStartPositions)).ToList();
+        
+        // now form problems out of the split lines
+        var result = new List<MathProblem>();
+        List<char> buf = new List<char>(capacity: 10);
+        for (int tokenIdx = 0; tokenIdx < splitLines.Count; tokenIdx++)
         {
-            var tmp = new List<char>();
-            foreach (var n in numbersAsListsOfChar)
+            var token = splitLines[tokenIdx];
+            for (int charIdx = token.Count; charIdx >= 0; charIdx--)
             {
-                // if there's a digit in this column, add it to the buffer; else there's no digit so nothing to add
-                if (i < n.Count) tmp.Add(n[i]);
+                if (token[charIdx] != ' ') buf.Add(token[charIdx]);
             }
-            convertedProblem.Items.Add(int.Parse(new string(tmp.ToArray())));
+            buf.Clear();
         }
-        return convertedProblem;
+
+        return [];
     }
 
-    static List<MathProblem> ParseProblems(IEnumerable<string> lines)
+    static List<int> FindColumnBoundaryPositions(string[] lines)
+    {
+        if (lines.Length == 0) throw new Exception("No lines found");
+
+        // first column always starts at zero
+        var results = new List<int>();
+
+        // walk all lines at the same time. If a character is a space in all of them, it's a column boundary
+        for (int i = 0; i < lines[0].Length; i++)
+        {
+            if (lines.All(l => l[i] == ' ')) results.Add(i);
+        }
+
+        // If there's double-whitespace do we need to disregard it? Assume the input doesn't have it
+        return results;
+    }
+
+    static List<string> SplitAtBoundaries(string input, IEnumerable<int> columnBoundaryPositions)
+    {
+        var result = new List<string>();
+        var prev = 0;
+        foreach (var boundary in columnBoundaryPositions)
+        {
+            result.Add(input.Substring(prev, boundary - prev));
+            prev = boundary + 1;
+        }
+
+        result.Add(input.Substring(prev, input.Length - prev));
+        return result;
+    }
+
+    static List<MathProblem> ParseProblemsPart1(IEnumerable<string> lines)
     {
         var result = new List<MathProblem>();
         // read the first line to work out the shape of the rest
-        
+
         using var e = lines.GetEnumerator();
         if (!e.MoveNext()) throw new Exception("No first line in input?");
         var firstLineReader = new DelimitedLineReader(e.Current);
